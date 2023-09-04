@@ -31,9 +31,7 @@
         <!-- <p class="float-left">Spaces</p> -->
         <v-row>
           <v-col cols="12">
-            <v-btn class="ma-2 text-none" rounded >
-              My Spaces
-            </v-btn>
+            <v-btn class="ma-2 text-none" rounded> My Spaces </v-btn>
             <v-btn class="ma-2 text-none" rounded> Favorites </v-btn>
             <v-btn class="ma-2 text-none" rounded> Popular </v-btn>
             <v-btn class="ma-2 text-none" rounded> Featured </v-btn>
@@ -182,10 +180,20 @@
 
         <!-- show 3 images widget_pets, widget_spin.png, widget_plants.png -->
         <v-img src="widget_spin.png"></v-img>
-        <br />
+        <p class="d-flex justify">
+          <v-icon color="red">mdi-alert-circle</v-icon>Spin now!
+        </p>
         <v-img src="widget_pets.png"></v-img>
-        <br />
+        <p class="d-flex justify">
+          <v-icon color="green">mdi-check-circle</v-icon>Your pet is well cared
+          for!
+        </p>
+
         <v-img src="widget_plants.png"></v-img>
+        <p class="d-flex justify">
+          <v-icon color="green">mdi-check-circle</v-icon>Your plants are
+          healthy.
+        </p>
       </v-col>
     </v-row>
   </v-container>

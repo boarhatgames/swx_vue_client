@@ -83,7 +83,7 @@
     <!-- add an random image to the right -->
 
     <v-col cols="5">
-      <img
+      <v-img
         src="intro.png"
         style="height: -webkit-fill-available"
         alt="Welcome"

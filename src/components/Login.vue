@@ -23,16 +23,14 @@
           >
             <!-- <v-card color="transparent" elevation="0" class="px-8 pb-12 mx-auto"> -->
             <v-card-title class="text-center">
-
               <v-avatar size="104" class="mb-5 text-center" :image="img" />
               <h1 class="display-1 font-weight-thin mb-4">Have an Account?</h1>
-
             </v-card-title>
             <!-- <p class="subheading font-weight-thin mb-4">
               Welcome back! Login to your account to continue.
             </p> -->
 
-            <v-form>
+            <v-form @submit.prevent="handleLogin">
               <v-text-field
                 v-model="email"
                 label="Email"
@@ -53,23 +51,23 @@
 
               <!-- </v-col> -->
               <!--  -->
+              <!-- remember me checkbox -->
+              <v-row>
+                <v-col cols="12" sm="6" text-sm-left>
+                  <v-checkbox label="Remember me" color="blue" />
+                </v-col>
+                <v-col sm="5" text-sm-right>
+                  <!-- make it align on same as remember me text -->
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="12" class="text-sm-right">
+                  <v-btn variant="text" color="green" @click="handleLogin" block
+                    >Login</v-btn
+                  >
+                </v-col>
+              </v-row>
             </v-form>
-            <!-- remember me checkbox -->
-            <v-row>
-              <v-col cols="12" sm="6" text-sm-left>
-                <v-checkbox label="Remember me" color="blue" />
-              </v-col>
-              <v-col sm="5" text-sm-right>
-                <!-- make it align on same as remember me text -->
-              </v-col>
-            </v-row>
-            <v-row>
-              <v-col cols="12" class="text-sm-right">
-                <v-btn variant="text" color="green" @click="submit" block
-                  >Login</v-btn
-                >
-              </v-col>
-            </v-row>
             <v-row>
               <v-col cols="12">
                 <v-btn variant="text" color="blue" to="invite" block
@@ -101,7 +99,7 @@
     <!-- add an random image to the right -->
 
     <v-col cols="5">
-      <img
+      <v-img
         src="intro.png"
         style="height: -webkit-fill-available"
         alt="Welcome"
@@ -111,6 +109,9 @@
 </template>
 
 <script>
+import axios from 'axios';
+import { useAuthStore } from '../stores/auth';
+const authStore = useAuthStore();
 export default {
   name: 'Login',
   data: () => ({
@@ -137,14 +138,26 @@ export default {
         return 'Password is required.';
       },
       (value) => {
-        if (value.length >= 8) return true;
+        if (value.length >= 6) return true;
 
-        return 'Password must be at least 8 characters.';
+        return 'Password must be at least 6 characters.';
       },
     ],
   }),
 
   methods: {
+    async handleLogin() {
+      const { data } = await axios.post(
+        'https://smallworlds.app/api/auth/login',
+        {
+          email: this.email,
+          password: this.password,
+        }
+      );
+      // authStore.setToken(data.token);
+      if (data.token) this.$router.push('/profile');
+    },
+
     setRandom() {
       //if element does not have class pause
       // if (!document.getElementsByClassName('').className.includes('pause')) {
@@ -160,11 +173,20 @@ export default {
     },
   },
 
-  mounted() {
+  async mounted() {
+    await authStore.fetchAuthUser();
+    // is user is logged in, redirect to profile
+    if (authStore.authUser.id !== null) this.$router.push('/profile');
+
     this.setRandom();
     setInterval(() => {
       this.setRandom();
     }, 10000);
   },
+
+  // onMounted(async () => {
+  //  await authStore.fetchAuthUser();
+  //   // this.$router.push('/profile');
+  // }),
 };
 </script>

@@ -1,17 +1,21 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
+import authMiddleware from './middleware/auth-middleware'
 
 const routes = [
   {
     path: '/',
-    name: 'home',
+    name: 'root',
     component: () =>
-      import('../views/LoginView.vue'),
+      import('../views/ProfileView.vue'),
+      // meta: { layout: 'auth' },
+
   },
   {
     path: '/invite',
     name: 'invite',
     component: () =>
       import('../views/InviteView.vue'),
+      meta: { layout: 'auth' },
 
   },
   {
@@ -24,22 +28,18 @@ const routes = [
       import(/* webpackChunkName: "about" */ '../views/AboutView.vue'),
   },
   {
-    path: '/s2w',
-    name: 's2w',
-    component: () =>
-      import(/* webpackChunkName: "s2w" */ '../views/S2wView.vue'),
-  },
-  {
     path: '/login',
     name: 'login',
     component: () =>
-      import(/* webpackChunkName: "s2w" */ '../views/LoginView.vue'),
+      import(/* webpackChunkName: "login" */ '../views/LoginView.vue'),
+      meta: { layout: 'auth' },
+
   },
   {
     path: '/profile',
     name: 'profile',
     component: () =>
-      import(/* webpackChunkName: "s2w" */ '../views/ProfileView.vue'),
+      import(/* webpackChunkName: "profile" */ '../views/ProfileView.vue'),
   },
 ];
 
@@ -47,5 +47,6 @@ const router = createRouter({
   history: createWebHashHistory(),
   routes,
 });
+router.beforeEach(authMiddleware);
 
 export default router;

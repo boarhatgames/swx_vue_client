@@ -24,7 +24,7 @@
           </v-slide-group-item>
         </v-slide-group>
         <v-card-title class="align-center justify-center d-flex"
-          >Justin</v-card-title
+          >UserName: {{ user.$state.firstName + " " + user.$state.lastName }}</v-card-title
         >
       </v-col>
       <v-col cols="7">
@@ -199,11 +199,13 @@
   </v-container>
 </template>
 <script>
+import { useUserStore} from '@/stores/user.js'
 export default {
   name: 'Profile',
 
   data() {
     return {
+      user: useUserStore(),
       model: null,
       email: '',
       password: '',

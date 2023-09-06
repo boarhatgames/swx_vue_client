@@ -32,14 +32,14 @@
 
             <v-form @submit.prevent="handleLogin">
               <v-text-field
-                v-model="email"
+                v-model.trim="credentials.email"
                 label="Email"
                 type="email"
                 :rules="emailRules"
                 required
               />
               <v-text-field
-                v-model="password"
+                v-model="credentials.password"
                 label="Password"
                 type="password"
                 :rules="passwordRules"
@@ -109,15 +109,19 @@
 </template>
 
 <script>
-import axios from 'axios';
+import { reactive } from 'vue';
 import { useAuthStore } from '../stores/auth';
-const authStore = useAuthStore();
+const auth = useAuthStore();
 export default {
   name: 'Login',
   data: () => ({
+    //grab data.url from api link and set image
+    credentials: reactive({
+      email: '',
+      password: '',
+    }),
     email: '',
     password: '',
-    //grab data.url from api link and set image
     img: '',
     emailRules: [
       (value) => {
@@ -147,15 +151,15 @@ export default {
 
   methods: {
     async handleLogin() {
-      const { data } = await axios.post(
-        'https://smallworlds.app/api/auth/login',
-        {
-          email: this.email,
-          password: this.password,
-        }
-      );
-      // authStore.setToken(data.token);
-      if (data.token) this.$router.push('/profile');
+      try {
+        await auth.login(this.credentials);
+      } catch (error) {
+        console.log(error);
+      }
+      this.$router.push('/');
+      // the image is still pulling after redirect.. this will stop it
+      // stop setRandom from running
+
     },
 
     setRandom() {
@@ -174,14 +178,15 @@ export default {
   },
 
   async mounted() {
-    await authStore.fetchAuthUser();
-    // is user is logged in, redirect to profile
-    if (authStore.authUser.id !== null) this.$router.push('/profile');
+    // await authStore.fetchAuthUser();
+    // // is user is logged in, redirect to profile
+    // if (authStore.authUser.id !== null) this.$router.push('/profile');
 
     this.setRandom();
     setInterval(() => {
       this.setRandom();
     }, 10000);
+    // if navigated away stop setRandom from running
   },
 
   // onMounted(async () => {

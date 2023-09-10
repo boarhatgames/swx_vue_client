@@ -1,4 +1,4 @@
-# smi
+# swx login + profile page
 
 ## Project setup
 ```

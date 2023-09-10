@@ -18,7 +18,6 @@
         <br />
         <v-row>
           <!-- prepend image for the icon gold.png -->
-
           <v-chip color="yellow">
             <v-img src="balance_gold.png" height="20" width="20"></v-img>
             {{ numberWithCommas(user.$state.goldBalance) }}

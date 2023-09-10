@@ -13,7 +13,7 @@
       </v-col> -->
       <v-col cols="5">
         <!-- on press of textfield go to url -->
-          <!-- Add drawer -->
+          <!-- Add drawer if isLogged in -->
         
         <v-text-field
           v-model="url"

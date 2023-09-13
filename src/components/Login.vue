@@ -3,7 +3,7 @@
 
   <v-row justify="center" no-gutters>
     <!-- shift page down -->
-    <v-col cols="5">
+    <v-col cols="6">
       <v-img
         src="https://images.unsplash.com/photo-1581093458791-3a3b7f0e7e1e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80"
         aspect-ratio="1"
@@ -98,7 +98,7 @@
     </v-col>
     <!-- add an random image to the right -->
 
-    <v-col cols="5">
+    <v-col cols="6">
       <v-img
         src="intro.png"
         style="height: -webkit-fill-available"
@@ -111,6 +111,7 @@
 <script>
 import { reactive } from 'vue';
 import { useAuthStore } from '../stores/auth';
+import router from "@/router";
 const auth = useAuthStore();
 export default {
   name: 'Login',
@@ -120,8 +121,7 @@ export default {
       email: '',
       password: '',
     }),
-    email: '',
-    password: '',
+    doInterval: true,
     img: '',
     emailRules: [
       (value) => {
@@ -156,16 +156,18 @@ export default {
       } catch (error) {
         console.log(error);
       }
-      this.$router.push('/');
-      // the image is still pulling after redirect.. this will stop it
-      // stop setRandom from running
+      this.doInterval = false;
+
+      // go to profile, but refresh header component
+      await router.push({ path: '/profile' });
+      await router.go(router.currentRoute);
 
     },
 
     setRandom() {
       //if element does not have class pause
       // if (!document.getElementsByClassName('').className.includes('pause')) {
-      fetch('https://smallworlds.app/api/avatar/head')
+      fetch('/api/avatar/head')
         .then((response) => response.json())
         .then((data) => {
           this.img = '';
@@ -177,21 +179,40 @@ export default {
     },
   },
 
+  unmounted() {
+    // stop setRandom from running
+    this.doInterval = false;
+  },
+
   async mounted() {
     // await authStore.fetchAuthUser();
     // // is user is logged in, redirect to profile
     // if (authStore.authUser.id !== null) this.$router.push('/profile');
-
-    this.setRandom();
-    setInterval(() => {
+    if (this.doInterval) {
       this.setRandom();
-    }, 10000);
-    // if navigated away stop setRandom from running
+      setInterval(() => {
+        this.setRandom();
+      }, 10000);
+      // if navigated away stop setRandom from running
+    }
   },
 
-  // onMounted(async () => {
-  //  await authStore.fetchAuthUser();
-  //   // this.$router.push('/profile');
-  // }),
+  computed: {
+    authUser() {
+      return auth.authUser;
+    },
+  },
+
+  watch: {
+    // when credentials.email changes, set credentials.email to email
+    credentials: {
+      //when changed set doInterval to false
+      deep: true,
+      handler() {
+        this.doInterval = false;
+      },
+
+    },
+  },
 };
 </script>

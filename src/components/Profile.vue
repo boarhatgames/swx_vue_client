@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid style="background-color: #333">
+  <v-container fluid style="background-color: #333; height: 81%">
     <v-row>
       <v-col cols="3">
         <v-slide-group v-model="model" class="pa-4" center-active show-arrows>
@@ -31,11 +31,11 @@
         <v-row>
           <v-col cols="12">
             <v-btn
-              class="ma-2 text-none active"
+              class="ma-2 text-none"
               rounded
               @click="changeTab('mySpaces')"
-              active
               ref="mySpaces"
+              :class="{ 'v-btn--active': mySpacesActive }"
             >
               My Spaces
             </v-btn>
@@ -44,6 +44,7 @@
               rounded
               ref="myFavs"
               @click="changeTab('favs')"
+              :class="{ 'v-btn--active': favsActive }"
             >
               Favorites
             </v-btn>
@@ -167,12 +168,18 @@ export default {
       img: 'https://cdn.vuetifyjs.com/images/lists/1.jpg',
       onlineAvi: null,
       visitorText: '',
+      mySpaces: [],
+      favs: [],
+      featured: [],
+      mySpacesActive: true,
+      favsActive: false,
+      initialSpaceLoad: true,
     };
   },
 
   methods: {
     async getThumb(avatar_id) {
-      const res = await fetch('/api//avi/' + avatar_id, {
+      const res = await fetch('/api/avi/' + avatar_id, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -183,12 +190,25 @@ export default {
       return data.thumbUrl;
     },
     changeTab(tab) {
-      if (this.tab != tab) this.getSpaces(tab);
+      if (this.tab !== tab) this.getSpaces(tab);
       this.tab = tab;
+      // remove v-btn--active from all buttons
+      if (tab === 'mySpaces') {
+          this.mySpacesActive = true;
+          this.favsActive = false;
+      } else if (tab === 'favs') {
+          this.mySpacesActive = false;
+          this.favsActive = true;
+      }
+
+
+
     },
     async getSpaces(tab) {
-      if (tab == 'mySpaces') {
-        const res = await fetch('/api/spaces/mine', {
+      if (this.initialSpaceLoad)
+      {
+        this.initialSpaceLoad = false;
+        const res = await fetch('/api/spaces/me', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -196,32 +216,49 @@ export default {
           },
         });
         const data = await res.json();
-        this.spaces = data;
-        for (let i = 0; i < data.length; i++) {
-          if (data[i].currentVisitors > 0)
-            this.onlineAvi = await this.getThumb(data[i].visitors[0].avatar_id);
-          if (data[i].currentVisitors > 1) this.visitorText = 'Visitors';
-          else this.visitorText = 'Visitor';
-        }
-        
+        this.mySpaces = data.mySpaces;
+        this.spaces = this.mySpaces;
+        this.myFavs = data.myFavs;
+        // return;
+      }
+      if (tab === 'mySpaces') {
+        // const res = await fetch('/api/spaces/mine', {
+        //   method: 'GET',
+        //   headers: {
+        //     'Content-Type': 'application/json',
+        //     Authorization: 'Bearer ' + this.auth.$state.token,
+        //   },
         // });
-      } else if (tab == 'favs') {
+        // const data = await res.json();
+        // this.spaces = data;
+        // for (let i = 0; i < data.length; i++) {
+        //   if (data[i].currentVisitors > 0)
+        //     this.onlineAvi = await this.getThumb(data[i].visitors[0].avatar_id);
+        //   if (data[i].currentVisitors > 1) this.visitorText = 'Visitors';
+        //   else this.visitorText = 'Visitor';
+        // }
+        this.spaces = [];
+        this.spaces = this.mySpaces;
+        // });
+      } else if (tab === 'favs') {
         
-        const res = await fetch('/api/spaces/favs', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer ' + this.auth.$state.token,
-          },
-        });
-        const data = await res.json();
-        this.spaces = data;
-        for (let i = 0; i < data.length; i++) {
-          if (data[i].currentVisitors > 0)
-            this.onlineAvi = await this.getThumb(data[i].visitors[0].avatar_id);
-          if (data[i].currentVisitors > 1) this.visitorText = 'Visitors';
-          else this.visitorText = 'Visitor';
-        }
+        // const res = await fetch('/api/spaces/favs', {
+        //   method: 'GET',
+        //   headers: {
+        //     'Content-Type': 'application/json',
+        //     Authorization: 'Bearer ' + this.auth.$state.token,
+        //   },
+        // });
+        // const data = await res.json();
+        // this.spaces = data;
+        // for (let i = 0; i < data.length; i++) {
+        //   if (data[i].currentVisitors > 0)
+        //     this.onlineAvi = await this.getThumb(data[i].visitors[0].avatar_id);
+        //   if (data[i].currentVisitors > 1) this.visitorText = 'Visitors';
+        //   else this.visitorText = 'Visitor';
+        this.spaces = [];
+        this.spaces = this.myFavs;
+        // }
         // get favs
       } else if (tab == 'pop') {
         // get popular
@@ -233,7 +270,6 @@ export default {
   },
   mounted() {
     this.getSpaces(this.tab);
-    
   },
 };
 </script>

@@ -27,6 +27,7 @@ export const useAuthStore = defineStore({
           email,
           password,
         });
+        // this.commit('setAuthUser', data);
         this.updateState({email:data.email, isLoggedIn: true, token: data.api });
         await user.storeInfo();  
 
@@ -66,14 +67,17 @@ export const useAuthStore = defineStore({
         throw error;
       }
     },
-    // async fetchAuthUser() {
-    //   try {
-    //     const { data } = await axios.get('/api/user/me');
-    //     this.authUser = data;
-    //     commit('setAuthUser', data);
-    //   } catch (e) {
-    //     // Not authenticated
-    //   }
-    // },
+  },
+
+  // getters: {
+  //   isLoggedIn: (state) => state.isLoggedIn,
+  //   email: (state) => state.email,
+  //   token: (state) => state.token,
+  // },
+
+  mutations: {
+    setAuthUser(state, user) {
+      state.authUser = user;
+    }
   },
 });

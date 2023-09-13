@@ -2,7 +2,7 @@
   <v-app theme="dark" full-height>
     <Header/>
     <v-main>
-      <router-view />
+      <router-view  />
     </v-main>
   </v-app>
 </template>
@@ -20,5 +20,6 @@ export default {
       console.log(...args);
     },
   },
+  
 };
 </script>

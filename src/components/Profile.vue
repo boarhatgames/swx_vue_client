@@ -48,21 +48,24 @@
             >
               Favorites
             </v-btn>
-            <v-btn class="ma-2 text-none" rounded @click="changeTab('pop')">
+            <v-btn class="ma-2 text-none" rounded @click="changeTab('pop')"
+            :class="{'v-btn--active': popularActive}">
               Popular
             </v-btn>
             <v-btn
               class="ma-2 text-none"
               rounded
               @click="changeTab('featured')"
+              ref="featured"
+              :class="{ 'v-btn--active': featuredActive }"
             >
               Featured
             </v-btn>
             <!-- arrow keys to next page use icons -->
-            <v-btn class="ma-2 float-right" id="hasNext" rounded disabled>
+            <v-btn class="ma-2 float-right" id="hasNext" rounded :class="{'v-btn--disabled': rightActive}" @click="nextSpace">
               <v-icon>mdi-arrow-right</v-icon>
             </v-btn>
-            <v-btn class="ma-2 float-right" id="hasPrev" rounded disabled>
+            <v-btn class="ma-2 float-right" id="hasPrev" rounded :class="{'v-btn--disabled': leftActive}" @click="prevSpace">
               <v-icon>mdi-arrow-left</v-icon>
             </v-btn>
           </v-col>
@@ -90,6 +93,7 @@
                 height="96"
                 max-width="128"
                 ref="spaceCard"
+                @click="this.$router.push('/space/' + space.id +'/')"
                 v-else
                 :style="{
                   backgroundImage: 'url(' + space.spaceThumbnailSource + ')',
@@ -147,7 +151,6 @@ import { useUserStore } from '@/stores/user.js';
 import { useAuthStore } from '@/stores/auth.js';
 export default {
   name: 'Profile',
-
   data() {
     return {
       user: useUserStore(),
@@ -161,19 +164,23 @@ export default {
         (v) => !!v || 'E-mail is required',
         (v) => /.+@.+\..+/.test(v) || 'E-mail must be valid',
       ],
-      passwordRules: [
-        (v) => !!v || 'Password is required',
-        (v) => v.length >= 8 || 'Password must be at least 8 characters',
-      ],
       img: 'https://cdn.vuetifyjs.com/images/lists/1.jpg',
       onlineAvi: null,
       visitorText: '',
       mySpaces: [],
       favs: [],
       featured: [],
+      popular: [],
       mySpacesActive: true,
       favsActive: false,
+      featuredActive: false,
+      popularActive: false,
       initialSpaceLoad: true,
+      rightActive: true,
+      leftActive: true,
+      nextArr : [],
+      prevArr : [],
+      spaceArr : [],
     };
   },
 
@@ -196,15 +203,115 @@ export default {
       if (tab === 'mySpaces') {
           this.mySpacesActive = true;
           this.favsActive = false;
+          this.featuredActive = false;
+          this.popularActive = false;
       } else if (tab === 'favs') {
           this.mySpacesActive = false;
           this.favsActive = true;
+          this.featuredActive = false;
+          this.popularActive = false;
+      }
+      else if (tab === 'featured') {
+          this.mySpacesActive = false;
+          this.favsActive = false;
+          this.featuredActive = true;
+          this.popularActive = false;
+      }
+      else if (tab === 'pop') {
+          this.mySpacesActive = false;
+          this.favsActive = false;
+          this.featuredActive = false;
+          this.popularActive = true;
+      }
+    },
+
+    nextSpace() {
+      //show next 16 spaces
+      //if array contains more than 16 spaces, show next button
+      //if array contains less than 16 spaces, hide next button
+      //if array contains less than 16 spaces, hide prev button
+      //if array contains more than 16 spaces, show prev button
+      // use nextArr, prevArr, spaceArr, spaces
+
+      //if nextArr is empty, hide next button
+      if (this.nextArr.length === 0) {
+        this.rightActive = true;
+        this.leftActive = false;
+        return;
+      }
+      //if nextArr is not empty, show next button
+      else {
+        this.rightActive = false;
+        this.leftActive = true;
+      }
+      //if prevArr is empty, hide prev button
+      if (this.prevArr.length === 0) {
+        this.leftActive = true;
+        this.rightActive = false;
+      }
+      //if prevArr is not empty, show prev button
+      else {
+        this.leftActive = false;
+        // this.rightActive = true;
+      }
+      //if nextArr is less than 16, show nextArr
+      if (this.nextArr.length < 16) {
+        this.spaces = this.nextArr;
+        this.prevArr = this.spaceArr;
+        this.nextArr = [];
+      }
+      //if nextArr is more than 16, show nextArr
+      else {
+        this.spaces = this.nextArr.slice(0, 16);
+        this.prevArr = this.spaceArr;
+        this.nextArr = this.nextArr.slice(16, this.nextArr.length);
       }
 
 
 
     },
-    async getSpaces(tab) {
+    // NEEDS TLC
+    prevSpace()
+    {
+
+      //if prevArr is empty, hide prev button
+      if (this.prevArr.length === 0) {
+        this.leftActive = true;
+        this.rightActive = false;
+        return;
+      }
+      //if prevArr is not empty, show prev button
+      else {
+        this.leftActive = false;
+        this.rightActive = true;
+      }
+      //if nextArr is empty, hide next button
+      if (this.nextArr.length === 0) {
+        this.rightActive = true;
+        this.leftActive = false;
+      }
+      //if nextArr is not empty, show next button
+      else {
+        this.rightActive = false;
+        // this.leftActive = true;
+      }
+      //if prevArr is less than 16, show prevArr
+      if (this.prevArr.length < 16) {
+        this.spaces = this.prevArr;
+        this.nextArr = this.spaceArr;
+        this.prevArr = [];
+      }
+      //if prevArr is more than 16, show prevArr
+      else {
+        this.spaces = this.prevArr.slice(this.prevArr.length - 16, this.prevArr.length);
+        this.nextArr = this.spaceArr;
+        this.prevArr = this.prevArr.slice(0, this.prevArr.length - 16);
+      }
+
+    },
+
+    async getSpaces(tab)
+    {
       if (this.initialSpaceLoad)
       {
         this.initialSpaceLoad = false;
@@ -219,6 +326,7 @@ export default {
         this.mySpaces = data.mySpaces;
         this.spaces = this.mySpaces;
         this.myFavs = data.myFavs;
+        this.featured = data.featured;
         // return;
       }
       if (tab === 'mySpaces') {
@@ -239,6 +347,19 @@ export default {
         // }
         this.spaces = [];
         this.spaces = this.mySpaces;
+        this.spaceArr = this.mySpaces;
+        //If array contains more than 16 spaces, show next button
+        if (this.spaces.length > 16) {
+          this.rightActive = false;
+          // store the rest of the spaces in a new array
+          this.spaces = this.spaces.slice(0, 16);
+          this.nextArr = this.mySpaces.slice(16, this.mySpaces.length);
+          this.prevArr = this.spaces;
+        }
+        else{
+          this.rightActive = true;
+          this.leftActive = true;
+        }
         // });
       } else if (tab === 'favs') {
         
@@ -258,18 +379,57 @@ export default {
         //   else this.visitorText = 'Visitor';
         this.spaces = [];
         this.spaces = this.myFavs;
+        if (this.spaces.length > 16) {
+          this.rightActive = false;
+          // store the rest of the spaces in a new array
+          this.spaces = this.spaces.slice(0, 16);
+          this.nextArr = this.myFavs.slice(16, this.myFavs.length);
+
+        }
+        else{
+          this.rightActive = true;
+          this.leftActive = true;
+        }
         // }
         // get favs
-      } else if (tab == 'pop') {
+      } else if (tab === 'pop') {
+        this.spaces = [];
+        if (this.spaces.length > 16) {
+          this.rightActive = false;
+        }
+        else{
+          this.rightActive = true;
+          this.leftActive = true;
+        }
         // get popular
-      } else if (tab == 'featured') {
+      } else if (tab === 'featured') {
         // get featured
+        this.spaces = [];
+        this.spaces = this.featured;
+        if (this.spaces.length > 16) {
+          this.rightActive = false;
+          // store the rest of the spaces in a new array
+          this.spaces = this.spaces.slice(0, 16);
+          this.nextArr = this.featured.slice(16, this.featured.length);
+          this.prevArr = this.spaces;
+        }
+        else{
+          this.rightActive = true;
+          this.leftActive = true;
+        }
       }
-
-            },
+    },
   },
   mounted() {
     this.getSpaces(this.tab);
+    window.rpc.setRPC(
+      {
+        details: "SmallWorlds X",
+        state: "Profile",
+        largeImageKey: "logo",
+        largeImageText: "SWX",
+      }
+    );
   },
 };
 </script>

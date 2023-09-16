@@ -11,6 +11,13 @@ const routes = [
 
   },
   {
+    path: '/space/:id/',
+    name: 'space',
+    component: () =>
+        import('../views/SpaceView.vue'),
+
+  },
+  {
     path: '/invite',
     name: 'invite',
     component: () =>

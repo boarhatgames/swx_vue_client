@@ -1,20 +1,19 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
-import {useUserStore} from '@/stores/user.js';
+import { useUserStore } from '@/stores/user.js';
+import { useRouter } from 'vue-router';
 
 export const useAuthStore = defineStore({
   id: 'auth',
-  state: () => 
+  state: () =>
     JSON.parse(localStorage.getItem('AUTH_STATE')) ?? {
       email: null,
       isLoggedIn: false,
       token: null,
     },
   actions: {
-
-    updateState(data)
-    {
-      let newAuthState = {...this.$state, ...data}
+    updateState(data) {
+      let newAuthState = { ...this.$state, ...data };
       localStorage.removeItem('AUTH_STATE');
       localStorage.setItem('AUTH_STATE', JSON.stringify(newAuthState));
       this.$reset();
@@ -28,9 +27,12 @@ export const useAuthStore = defineStore({
           password,
         });
         // this.commit('setAuthUser', data);
-        this.updateState({email:data.email, isLoggedIn: true, token: data.api });
-        await user.storeInfo();  
-
+        this.updateState({
+          email: data.email,
+          isLoggedIn: true,
+          token: data.api,
+        });
+        await user.storeInfo();
       } catch (error) {
         if (error.response && error.response.status === 401) {
           throw new Error('Bad credentials');
@@ -45,13 +47,14 @@ export const useAuthStore = defineStore({
       this.$reset();
       user.$reset();
       try {
-        await axios.post('/api/logout');
-        await router.push({ name: 'login' });
+        // add authorization header to axios
+        let token = this.$state.token;
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        await axios.post('/api/auth/logout');
+        router.push('/login');
+      } catch (error) {
+        window.location.href = '/';
       }
-      catch (error) {
-        window.location.pathname = '/login';
-      }
-      
     },
     async register({ commit }, { username, password }) {
       try {
@@ -78,6 +81,6 @@ export const useAuthStore = defineStore({
   mutations: {
     setAuthUser(state, user) {
       state.authUser = user;
-    }
+    },
   },
 });

@@ -47,12 +47,11 @@ export default {
       user: useUserStore(),
     };
   },
-  methods:
-  {
+  methods: {
     //add commas to numbers
     numberWithCommas(x) {
       return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     },
-  }
+  },
 };
 </script>

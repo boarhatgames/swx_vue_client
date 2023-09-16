@@ -13,6 +13,11 @@ export default defineConfig({
       autoImport: true,
     }),
   ],
+  // pluginOptions: {
+  //   electronBuilder: {
+  //     preload : 'src/preload.js',
+  //   },
+  // },
   // proxy
   server: {
     proxy: {

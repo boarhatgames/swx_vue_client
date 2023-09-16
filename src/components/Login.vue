@@ -111,7 +111,7 @@
 <script>
 import { reactive } from 'vue';
 import { useAuthStore } from '../stores/auth';
-import router from "@/router";
+import router from '@/router';
 const auth = useAuthStore();
 export default {
   name: 'Login',
@@ -153,15 +153,13 @@ export default {
     async handleLogin() {
       try {
         await auth.login(this.credentials);
+        window.location.href = '/profile';
       } catch (error) {
         console.log(error);
       }
       this.doInterval = false;
 
       // go to profile, but refresh header component
-      await router.push({ path: '/profile' });
-      await router.go(router.currentRoute);
-
     },
 
     setRandom() {
@@ -195,6 +193,13 @@ export default {
       }, 10000);
       // if navigated away stop setRandom from running
     }
+    // set rpc
+    window.rpc.setRPC({
+      details: 'SmallWorlds X',
+      state: 'Logging in...',
+      largeImageKey: 'logo',
+      largeImageText: 'SWX',
+    });
   },
 
   computed: {
@@ -211,7 +216,6 @@ export default {
       handler() {
         this.doInterval = false;
       },
-
     },
   },
 };

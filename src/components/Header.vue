@@ -1,12 +1,7 @@
 <template>
   <!-- <v-card height="100%">
     <v-layout> -->
-  <v-navigation-drawer
-    v-model="drawer"
-    temporary
-    v-if="auth.$state.isLoggedIn"
-    style="top: 25px"
-  >
+  <v-navigation-drawer v-model="drawer" temporary v-if="auth.$state.isLoggedIn">
     <v-list-item
       :prepend-avatar="user.$state.defaultAvatar.thumbUrl"
       :title="user.$state.firstName + space + user.$state.lastName"
@@ -131,17 +126,22 @@
       </div>
     </template>
   </v-navigation-drawer>
-  <v-app-bar
+  <!-- if is macos -->
+
+  <!-- <v-app-bar
     elevation="0"
     rounded
     style="-webkit-app-region: drag"
     height="25"
-  />
+    class="titlebar"
+    v-if="os === 'Mac OS'"
+  /> -->
+  <div class="titlebar" v-else-if="os === 'Windows'"></div>
   <v-app-bar
     :elevation="4"
     rounded
-    style="-webkit-app-region: drag"
-    height="55"
+    style="-webkit-app-region: drag; font-size: 14px"
+    height="32"
   >
     <!-- <v-app-bar-nav-icon @click.stop="drawer = !drawer" /> -->
     <!-- show current url but make it editable-->
@@ -152,7 +152,11 @@
           <v-icon>mdi-menu</v-icon>
         </v-btn>
       </v-col> -->
-      <v-col cols="1" v-if="isLoggedIn" style="flex: 0 !important">
+      <v-col
+        cols="1"
+        v-if="isLoggedIn"
+        style="flex: 0 !important; align-self: center"
+      >
         <v-btn icon @click="toggleDrawer()">
           <v-icon>mdi-menu</v-icon>
         </v-btn>
@@ -172,25 +176,48 @@
           style="-webkit-app-region: no-drag"
         ></v-text-field>
       </v-col>
-      <v-col>
+      <v-col align-self="center">
         <!-- add reload button -->
         <v-btn icon @click="reload()">
-          <v-icon>mdi-reload</v-icon>
+          <v-icon size="18">mdi-reload</v-icon>
         </v-btn>
       </v-col>
       <v-spacer></v-spacer>
-      <!-- <v-col cols="2">
-        <v-btn icon color="red" @click="close()" class="float-right">
-          <v-icon>mdi-close-circle</v-icon>
+      <v-col
+        cols="2"
+        align-self="center"
+        @mouseover="colorBtns"
+        @mouseleave="resetBtns"
+      >
+        <v-btn
+          icon
+          :color="x"
+          @click="close()"
+          class="float-right"
+          style="padding: 0 20px; width: 30px"
+        >
+          <v-icon size="18">mdi-circle</v-icon>
         </v-btn>
-        <v-btn icon color="yellow" @click="minWindow()" class="float-right">
-          <v-icon>mdi-window-minimize</v-icon>
+
+        <v-btn
+          icon
+          :color="min"
+          @click="minWindow"
+          class="float-right"
+          style="width: 10px"
+        >
+          <v-icon size="18">mdi-circle</v-icon>
         </v-btn>
-        <v-btn icon color="green" @click="maxWindow()" class="float-right">
-          <v-icon>mdi-window-maximize</v-icon>
+        <v-btn
+          icon
+          :color="max"
+          @click="maxWindow()"
+          class="float-right"
+          style="padding: 0 20px; width: 10px"
+        >
+          <v-icon size="18">mdi-circle</v-icon>
         </v-btn>
       </v-col>
- -->
       <!-- <v-text-field
             label="Prepend inner"
             hide-details
@@ -227,10 +254,34 @@ export default {
         { title: 'Users', icon: 'mdi-account-group-outline' },
       ],
       rail: true,
+      os: '',
+      x: 'grey',
+      min: 'grey',
+      max: 'grey',
     };
   },
 
   methods: {
+    getV() {
+      console.log(this.version);
+    },
+    colorBtns() {
+      this.x = 'red';
+      this.min = 'yellow';
+      this.max = 'green';
+    },
+    resetBtns() {
+      this.x = 'grey';
+      this.min = 'grey';
+      this.max = 'grey';
+    },
+    operatingSystem() {
+      const platform = navigator.platform;
+      if (platform.indexOf('Win') !== -1) return 'Windows';
+      if (platform.indexOf('Mac') !== -1) return 'Mac OS';
+      if (platform.indexOf('Linux') !== -1) return 'Linux';
+      return 'Unknown';
+    },
     commas(number) {
       return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     },
@@ -257,11 +308,12 @@ export default {
     maxWindow() {
       // maximize window
       // window.win.maximize();
-      window.rpc.maximize();
+      window.frame.maximize();
+      window.frame.version();
     },
     minWindow() {
       // minimize window
-      window.minWindow();
+      window.frame.minimize();
     },
     close() {
       // close window
@@ -271,10 +323,15 @@ export default {
       this.auth.logout();
       // router.push({ path: '/login' });
     },
+    updateHeader(url) {
+      this.url = url;
+    },
   },
 
   //when router changes update url
-
+  mounted() {
+    this.os = this.operatingSystem();
+  },
   watch: {
     group() {
       this.drawer = false;
@@ -283,6 +340,7 @@ export default {
     $route(to) {
       this.url = window.location.href;
     },
+    //if iframe url changes then update url
   },
 
   emits: ['update:group'],
@@ -293,12 +351,3 @@ export default {
   },
 };
 </script>
-
-<style>
-.v-navigation-drawer__content {
-  height: 90% !important;
-}
-/* .v-list-item--active {
-  background-color: #0099cc !important;
-} */
-</style>

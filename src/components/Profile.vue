@@ -48,8 +48,12 @@
             >
               Favorites
             </v-btn>
-            <v-btn class="ma-2 text-none" rounded @click="changeTab('pop')"
-            :class="{'v-btn--active': popularActive}">
+            <v-btn
+              class="ma-2 text-none"
+              rounded
+              @click="changeTab('pop')"
+              :class="{ 'v-btn--active': popularActive }"
+            >
               Popular
             </v-btn>
             <v-btn
@@ -62,10 +66,22 @@
               Featured
             </v-btn>
             <!-- arrow keys to next page use icons -->
-            <v-btn class="ma-2 float-right" id="hasNext" rounded :class="{'v-btn--disabled': rightActive}" @click="nextSpace">
+            <v-btn
+              class="ma-2 float-right"
+              id="hasNext"
+              rounded
+              :class="{ 'v-btn--disabled': rightActive }"
+              @click="nextSpace"
+            >
               <v-icon>mdi-arrow-right</v-icon>
             </v-btn>
-            <v-btn class="ma-2 float-right" id="hasPrev" rounded :class="{'v-btn--disabled': leftActive}" @click="prevSpace">
+            <v-btn
+              class="ma-2 float-right"
+              id="hasPrev"
+              rounded
+              :class="{ 'v-btn--disabled': leftActive }"
+              @click="prevSpace"
+            >
               <v-icon>mdi-arrow-left</v-icon>
             </v-btn>
           </v-col>
@@ -93,16 +109,22 @@
                 height="96"
                 max-width="128"
                 ref="spaceCard"
-                @click="this.$router.push('/space/' + space.id +'/')"
+                @click="this.$router.push('/space/' + space.id + '/')"
                 v-else
                 :style="{
                   backgroundImage: 'url(' + space.spaceThumbnailSource + ')',
                 }"
               ></v-card>
-              <p class="d-flex font-weight-bold text-caption justify-center" v-if="space.currentVisitors > 0">
+              <p
+                class="d-flex font-weight-bold text-caption justify-center"
+                v-if="space.currentVisitors > 0"
+              >
                 {{ space.name }} ({{ space.currentVisitors }})
               </p>
-              <p class="d-flex font-weight-bold text-caption justify-center" v-else>
+              <p
+                class="d-flex font-weight-bold text-caption justify-center"
+                v-else
+              >
                 {{ space.name }}
               </p>
               <!-- <p
@@ -127,7 +149,8 @@
         >
 
         <!-- show 3 images widget_pets, widget_spin.png, widget_plants.png -->
-        <v-img src="widget_spin.png"></v-img>
+        <!-- make v-img clickable -->
+        <v-img src="widget_spin.png" @click="this.$router.push('/spin/')" style=""></v-img>
         <p class="d-flex justify">
           <v-icon color="red">mdi-alert-circle</v-icon>Spin now!
         </p>
@@ -178,9 +201,9 @@ export default {
       initialSpaceLoad: true,
       rightActive: true,
       leftActive: true,
-      nextArr : [],
-      prevArr : [],
-      spaceArr : [],
+      nextArr: [],
+      prevArr: [],
+      spaceArr: [],
     };
   },
 
@@ -201,27 +224,25 @@ export default {
       this.tab = tab;
       // remove v-btn--active from all buttons
       if (tab === 'mySpaces') {
-          this.mySpacesActive = true;
-          this.favsActive = false;
-          this.featuredActive = false;
-          this.popularActive = false;
+        this.mySpacesActive = true;
+        this.favsActive = false;
+        this.featuredActive = false;
+        this.popularActive = false;
       } else if (tab === 'favs') {
-          this.mySpacesActive = false;
-          this.favsActive = true;
-          this.featuredActive = false;
-          this.popularActive = false;
-      }
-      else if (tab === 'featured') {
-          this.mySpacesActive = false;
-          this.favsActive = false;
-          this.featuredActive = true;
-          this.popularActive = false;
-      }
-      else if (tab === 'pop') {
-          this.mySpacesActive = false;
-          this.favsActive = false;
-          this.featuredActive = false;
-          this.popularActive = true;
+        this.mySpacesActive = false;
+        this.favsActive = true;
+        this.featuredActive = false;
+        this.popularActive = false;
+      } else if (tab === 'featured') {
+        this.mySpacesActive = false;
+        this.favsActive = false;
+        this.featuredActive = true;
+        this.popularActive = false;
+      } else if (tab === 'pop') {
+        this.mySpacesActive = false;
+        this.favsActive = false;
+        this.featuredActive = false;
+        this.popularActive = true;
       }
     },
 
@@ -266,14 +287,9 @@ export default {
         this.prevArr = this.spaceArr;
         this.nextArr = this.nextArr.slice(16, this.nextArr.length);
       }
-
-
-
     },
     // NEEDS TLC
-    prevSpace()
-    {
-
+    prevSpace() {
       //if prevArr is empty, hide prev button
       if (this.prevArr.length === 0) {
         this.leftActive = true;
@@ -303,17 +319,17 @@ export default {
       }
       //if prevArr is more than 16, show prevArr
       else {
-        this.spaces = this.prevArr.slice(this.prevArr.length - 16, this.prevArr.length);
+        this.spaces = this.prevArr.slice(
+          this.prevArr.length - 16,
+          this.prevArr.length
+        );
         this.nextArr = this.spaceArr;
         this.prevArr = this.prevArr.slice(0, this.prevArr.length - 16);
       }
-
     },
 
-    async getSpaces(tab)
-    {
-      if (this.initialSpaceLoad)
-      {
+    async getSpaces(tab) {
+      if (this.initialSpaceLoad) {
         this.initialSpaceLoad = false;
         const res = await fetch('/api/spaces/me', {
           method: 'GET',
@@ -355,14 +371,12 @@ export default {
           this.spaces = this.spaces.slice(0, 16);
           this.nextArr = this.mySpaces.slice(16, this.mySpaces.length);
           this.prevArr = this.spaces;
-        }
-        else{
+        } else {
           this.rightActive = true;
           this.leftActive = true;
         }
         // });
       } else if (tab === 'favs') {
-        
         // const res = await fetch('/api/spaces/favs', {
         //   method: 'GET',
         //   headers: {
@@ -384,9 +398,7 @@ export default {
           // store the rest of the spaces in a new array
           this.spaces = this.spaces.slice(0, 16);
           this.nextArr = this.myFavs.slice(16, this.myFavs.length);
-
-        }
-        else{
+        } else {
           this.rightActive = true;
           this.leftActive = true;
         }
@@ -396,8 +408,7 @@ export default {
         this.spaces = [];
         if (this.spaces.length > 16) {
           this.rightActive = false;
-        }
-        else{
+        } else {
           this.rightActive = true;
           this.leftActive = true;
         }
@@ -412,8 +423,7 @@ export default {
           this.spaces = this.spaces.slice(0, 16);
           this.nextArr = this.featured.slice(16, this.featured.length);
           this.prevArr = this.spaces;
-        }
-        else{
+        } else {
           this.rightActive = true;
           this.leftActive = true;
         }
@@ -422,14 +432,12 @@ export default {
   },
   mounted() {
     this.getSpaces(this.tab);
-    window.rpc.setRPC(
-      {
-        details: "SmallWorlds X",
-        state: "Profile",
-        largeImageKey: "logo",
-        largeImageText: "SWX",
-      }
-    );
+    window.rpc.setRPC({
+      details: 'SmallWorlds X',
+      state: 'Profile',
+      largeImageKey: 'logo',
+      largeImageText: 'SWX',
+    });
   },
 };
 </script>

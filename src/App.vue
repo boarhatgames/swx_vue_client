@@ -1,13 +1,13 @@
 <template>
   <v-app theme="dark" full-height>
-    <Header/>
+    <Header @frameChange="" />
     <v-main>
-      <router-view  />
+      <router-view />
     </v-main>
   </v-app>
 </template>
 
-<script>  
+<script>
 import Header from './components/Header.vue';
 export default {
   name: 'App',
@@ -19,7 +19,15 @@ export default {
     log(...args) {
       console.log(...args);
     },
+    updateHeader(url) {
+      this.$refs.header.updateHeader(url);
+    },
   },
-  
 };
 </script>
+<style>
+::-webkit-scrollbar {
+  display: none;
+}
+
+</style>

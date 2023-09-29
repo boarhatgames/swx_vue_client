@@ -2,6 +2,7 @@
   <!--&lt;!&ndash;  iframe router source-->
   <iframe
     :src="'https://smallworlds.app' + url"
+    ref="frame"
     style="width: 100%; height: 100%; border: none"
   />
 </template>
@@ -24,6 +25,20 @@ export default defineComponent({
     };
   },
   methods: {
+    //update header url when onload is called
+    frameChange() {
+      //what is the url of the frame?
+      // this.url = document.querySelector('iframe').contentWindow.location.href;
+      //pass url to header
+      //update the current url to the frame address
+      // this.url = router.currentRoute.value.path;
+      this.$emit(
+        'updateHeader', //get url from iframe
+        this.url
+      );
+      console.log(this.url);
+    },
+
     // eslint-disable-next-line no-console
     async getSpaceName(spaceId) {
       //does url have home in it or space? if has home then set home to true
@@ -34,7 +49,7 @@ export default defineComponent({
       this.type = 'space';
 
       const response = await fetch(
-        'https://smallworlds.app/api/space/name/' + this.type + '/' + spaceId
+        '/api/space/name/' + this.type + '/' + spaceId
       );
       const data = await response.json();
       this.spaceName = data.name;
@@ -42,7 +57,19 @@ export default defineComponent({
     },
   },
   async mounted() {
-    this.spaceId = router.currentRoute.value.path.replace(/[^0-9]/g, '');
+    const iFrame = this.$refs.frame;
+    iFrame.addEventListener('load', () => {
+      // get url of iframe
+      this.url = iFrame.contentWindow.location.href;
+      //remove the https://smallworlds.app from the url and add the rest to our router
+      this.url = this.url.replace('https://smallworlds.app', '');
+      //update the current url to the frame address
+      console.log(this.url);
+      this.frameChange();
+      router.push(this.url);
+      this.spaceId = router.currentRoute.value.path.replace(/[^0-9]/g, '');
+
+    });
     await this.getSpaceName(this.spaceId);
     await window.rpc.setRPC({
       details: 'At ' + this.spaceName,
@@ -60,5 +87,7 @@ export default defineComponent({
       ],
     });
   },
+  //listen for when iframe url changes
+  watch: {},
 });
 </script>

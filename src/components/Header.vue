@@ -225,7 +225,6 @@
           ></v-text-field> -->
     </v-row>
   </v-app-bar>
-
   <!-- <v-main style="height: 100vh"></v-main>
     </v-layout>
   </v-card> -->
@@ -236,6 +235,7 @@
 import { useAuthStore } from '@/stores/auth.js';
 import { useUserStore } from '@/stores/user.js';
 import router from '@/router';
+// import snackBar from './utils/snackBar.vue';
 
 export default {
   name: 'Header',
@@ -245,6 +245,13 @@ export default {
       auth: useAuthStore(),
       user: useUserStore(),
       drawer: false,
+      snackbar: {
+        visible: false,
+        text: '',
+        color: '',
+        icon: '',
+        timeout: 3000,
+      },
       // eslint-disable-next-line no-undef
       url: window.location.href,
       space: ' ',
@@ -262,6 +269,16 @@ export default {
   },
 
   methods: {
+    // triggerSnackbar(data) {
+    //   this.snackbar.visible = data.visible;
+    //   this.snackbar.text = data.text;
+    //   this.snackbar.color = data.color;
+    //   this.snackbar.icon = data.icon;
+    //   this.snackbar.timeout = data.timeout;
+    //   setTimeout(() => {
+    //     this.snackbar.visible = false;
+    //   }, this.snackbar.timeout);
+    // },
     getV() {
       console.log(this.version);
     },
@@ -309,7 +326,6 @@ export default {
       // maximize window
       // window.win.maximize();
       window.frame.maximize();
-      window.frame.version();
     },
     minWindow() {
       // minimize window

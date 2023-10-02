@@ -4,26 +4,32 @@
   <v-row justify="center" no-gutters>
     <!-- shift page down -->
     <v-col cols="6">
-      <v-img
-        src="https://images.unsplash.com/photo-1581093458791-3a3b7f0e7e1e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80"
-        aspect-ratio="1"
-        class="white--text align-end"
-      >
+      <v-img aspect-ratio="1" class="white--text align-end">
         <v-card
           class="mx-auto"
           height="100"
           max-width="200"
           color="transparent"
+          elevation="0"
         ></v-card>
         <v-row>
           <v-card
             color="transparent"
-            elevation="0"
             class="px-8 pb-12 mx-auto mt-5"
+            elevation="0"
           >
             <!-- <v-card color="transparent" elevation="0" class="px-8 pb-12 mx-auto"> -->
             <v-card-title class="text-center">
-              <v-avatar size="104" class="mb-5 text-center" :image="img" />
+              <v-avatar
+                size="104"
+                class="mb-5 text-center"
+                :image="img"
+                style="
+                  background: #00000052;
+                  border-radius: 50%;
+                  border: solid #bbb 1px;
+                "
+              />
               <h1 class="display-1 font-weight-thin mb-4">Have an Account?</h1>
             </v-card-title>
             <!-- <p class="subheading font-weight-thin mb-4">
@@ -109,10 +115,11 @@
 </template>
 
 <script>
-import { reactive } from 'vue';
+import { reactive, watchEffect } from 'vue';
 import { useAuthStore } from '../stores/auth';
 import router from '@/router';
 const auth = useAuthStore();
+
 export default {
   name: 'Login',
   data: () => ({
@@ -121,6 +128,13 @@ export default {
       email: '',
       password: '',
     }),
+    snackbar: {
+      visible: false,
+      text: '',
+      color: '',
+      icon: '',
+      timeout: null,
+    },
     doInterval: true,
     img: '',
     emailRules: [
@@ -161,16 +175,27 @@ export default {
 
       // go to profile, but refresh header component
     },
-
-    setRandom() {
-      //if element does not have class pause
-      // if (!document.getElementsByClassName('').className.includes('pause')) {
-      fetch('/api/avatar/head')
+    setUserImg(email) {
+      fetch(`/api/avatar/head/${email}`)
         .then((response) => response.json())
         .then((data) => {
           this.img = '';
           this.img = data.url;
         });
+    },
+    setRandom() {
+      //if element does not have class pause
+      // if (!document.getElementsByClassName('').className.includes('pause')) {
+      if (this.doInterval) {
+        fetch('/api/avatar/head')
+          .then((response) => response.json())
+          .then((data) => {
+            this.img = '';
+            this.img = data.url;
+          });
+      } else if (this.emailV) {
+        clearInterval();
+      } else this.doInterval = true;
       // }
 
       // set img to resp data
@@ -180,19 +205,17 @@ export default {
   unmounted() {
     // stop setRandom from running
     this.doInterval = false;
+    clearInterval();
   },
 
   async mounted() {
+    this.setRandom();
+    setInterval(() => {
+      this.setRandom();
+    }, 10000);
     // await authStore.fetchAuthUser();
     // // is user is logged in, redirect to profile
     // if (authStore.authUser.id !== null) this.$router.push('/profile');
-    if (this.doInterval) {
-      this.setRandom();
-      setInterval(() => {
-        this.setRandom();
-      }, 10000);
-      // if navigated away stop setRandom from running
-    }
     // set rpc
     window.rpc.setRPC({
       details: 'SmallWorlds X',
@@ -209,14 +232,25 @@ export default {
   },
 
   watch: {
-    // when credentials.email changes, set credentials.email to email
-    credentials: {
-      //when changed set doInterval to false
-      deep: true,
-      handler() {
+    'credentials.email': function (val) {
+      //is email valid?
+      //has @ and .com
+      if (
+        /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,24}))$/.test(
+          val
+        )
+      ) {
         this.doInterval = false;
-      },
+        this.emailV = true;
+        this.setUserImg(val);
+      } else {
+        this.emailV = false;
+      }
     },
   },
 };
+// watchEffect(() => {
+//   console.log('email changed', credentials.email);
+//   //credentials.email
+// });
 </script>

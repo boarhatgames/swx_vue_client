@@ -26,6 +26,11 @@ export default defineConfig({
         changeOrigin: true,
         pathRewrite: (path) => path.replace(/^\/api/, ''),
       },
+      '/space': {
+        target: 'https://smallworlds.app',
+        changeOrigin: true,
+        pathRewrite: (path) => path.replace(/^\/space/, ''),
+      },
     },
   },
   define: { 'process.env': {} },

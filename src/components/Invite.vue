@@ -106,7 +106,7 @@
 export default {
   name: 'Login',
   data: () => ({
-    email: '',
+    code: '',
     password: '',
     //grab data.url from api link and set image
     img: '',
@@ -116,11 +116,10 @@ export default {
 
         return 'Code is required.';
       },
-      (value) => {
-        if (/.+@.+\..+/.test(value)) return true;
+      // (value) => {
 
-        return 'E-mail must be valid.';
-      },
+      //   return 'code must be valid.';
+      // },
     ],
     passwordRules: [
       (value) => {
@@ -137,8 +136,31 @@ export default {
   }),
 
   methods: {
-    checkInvite() {
-      window.frame.register();
+    async checkInvite() {
+      fetch('/api/invite', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          code: this.code,
+        }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            // this.$router.push({
+            //   name: 'Register',
+            //   params: { code: this.code },
+            // });
+            window.frame.register(this.code);
+          } else {
+            this.$toast.error(data.message);
+          }
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+        });
     },
   },
 

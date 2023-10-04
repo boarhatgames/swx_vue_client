@@ -117,7 +117,6 @@
 <script>
 import { reactive, watchEffect } from 'vue';
 import { useAuthStore } from '../stores/auth';
-import router from '@/router';
 const auth = useAuthStore();
 
 export default {
@@ -209,6 +208,8 @@ export default {
   },
 
   async mounted() {
+    //call parent function triggerSnackbar
+
     this.setRandom();
     setInterval(() => {
       this.setRandom();
@@ -230,6 +231,7 @@ export default {
       return auth.authUser;
     },
   },
+  // emits: ['triggerSnackbar'],
 
   watch: {
     'credentials.email': function (val) {
@@ -249,8 +251,4 @@ export default {
     },
   },
 };
-// watchEffect(() => {
-//   console.log('email changed', credentials.email);
-//   //credentials.email
-// });
 </script>

@@ -1,16 +1,17 @@
 <template>
   <!--&lt;!&ndash;  iframe router source-->
   <iframe
-    :src="'https://smallworlds.app' + url"
     ref="frame"
+    :src="url"
     style="width: 100%; height: 100%; border: none"
   />
+  <!-- show a webpage with axios auth bearer token -->
 </template>
 
 <script>
 import { defineComponent } from 'vue';
 import router from '@/router';
-
+import axios from 'axios';
 export default defineComponent({
   name: 'SpaceView',
   data() {
@@ -22,9 +23,23 @@ export default defineComponent({
       spaceDesc: null,
       home: false,
       type: null,
+      content: '',
     };
   },
   methods: {
+    //
+    // async setContents() {
+    //   let token = JSON.parse(localStorage.getItem('AUTH_STATE')).token;
+    //   axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    //   // get session cookie from base url
+    //   const response = await axios.get(this.url);
+    //   //set iframe to response.data
+
+    //   //  this.content = this.$refs.frame.contentWindow.document;
+    //   //  this.content.open('text/html', 'replace');
+    //   //  this.content.write(response.data);
+    //   //  this.content.close();
+    // },
     //update header url when onload is called
     frameChange() {
       //what is the url of the frame?
@@ -57,6 +72,7 @@ export default defineComponent({
     },
   },
   async mounted() {
+    await this.setContents();
     const iFrame = this.$refs.frame;
     iFrame.addEventListener('load', () => {
       // get url of iframe
@@ -68,7 +84,6 @@ export default defineComponent({
       this.frameChange();
       router.push(this.url);
       this.spaceId = router.currentRoute.value.path.replace(/[^0-9]/g, '');
-
     });
     await this.getSpaceName(this.spaceId);
     await window.rpc.setRPC({

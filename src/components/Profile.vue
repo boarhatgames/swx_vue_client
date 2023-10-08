@@ -152,19 +152,43 @@
         <!-- make v-img clickable -->
         <v-img
           src="widget_spin.png"
-          @click="triggerDialog('s2w')"
+          @click="
+            triggerDialog({
+              url: 'https://smallworlds.app/panel/spintowin',
+              width: '780px',
+              height: '650px',
+            })
+          "
           style=""
         ></v-img>
         <p class="d-flex justify">
           <v-icon color="red">mdi-alert-circle</v-icon>Spin now!
         </p>
-        <v-img src="widget_pets.png" @click="triggerDialog('pet')"></v-img>
+        <v-img
+          src="widget_pets.png"
+          @click="
+            triggerDialog({
+              url: 'https://smallworlds.app/panel/pet',
+              width: '218px',
+              height: '280px',
+            })
+          "
+        ></v-img>
         <p class="d-flex justify">
           <v-icon color="green">mdi-check-circle</v-icon>Your pet is well cared
           for!
         </p>
 
-        <v-img src="widget_plants.png" @click="triggerDialog('plant')"></v-img>
+        <v-img
+          src="widget_plants.png"
+          @click="
+            triggerDialog({
+              url: 'https://smallworlds.app/panel/plant',
+              width: '218px',
+              height: '280px',
+            })
+          "
+        ></v-img>
         <p class="d-flex justify">
           <v-icon color="green">mdi-check-circle</v-icon>Your plants are
           healthy.
@@ -238,29 +262,11 @@ export default {
     };
   },
   methods: {
-    triggerDialog(panel) {
-      this.showDialog = false;
-      if (panel == 's2w') {
-        //replace v-card with iframe content of smallworlds.app/panel/spintowin
-        this.panel.url = 'https://smallworlds.app/panel/spintowin';
-        this.panel.width = '780px';
-        this.panel.height = '650px';
-        this.showDialog = true;
-      }
-      if (panel == 'pet') {
-        //replace v-card with iframe content of smallworlds.app/panel/pet
-        this.panel.url = 'https://smallworlds.app/panel/pet';
-        this.panel.width = '218px';
-        this.panel.height = '280px';
-        this.showDialog = true;
-      }
-      if (panel == 'plant') {
-        //replace v-card with iframe content of smallworlds.app/panel/plant
-        this.panel.url = 'https://smallworlds.app/panel/plant';
-        this.panel.width = '218px';
-        this.panel.height = '280px';
-        this.showDialog = true;
-      }
+    triggerDialog(data) {
+      this.showDialog = true;
+      this.panel.url = data.url;
+      this.panel.width = data.width;
+      this.panel.height = data.height;
     },
     triggerSnackbar(data) {
       this.snackbar.visible = data.visible;

@@ -122,20 +122,21 @@
     </v-list>
     <template v-slot:append>
       <div class="pa-2">
-        <v-btn block @click="logout"> Logout </v-btn>
+        <v-tooltip v-model="show" location="top">
+          <template v-slot:activator="{ props }">
+            <v-btn icon v-bind="props">
+              <v-icon color="info" @click="copyURL"> mdi-content-copy </v-icon>
+            </v-btn>
+          </template>
+          <span ref="tool">Copy Current URL</span>
+        </v-tooltip>
+      </div>
+      <div class="pa-2">
+        <v-btn block color="red" @click="logout"> Logout </v-btn>
       </div>
     </template>
   </v-navigation-drawer>
-  <!-- if is macos -->
 
-  <!-- <v-app-bar
-    elevation="0"
-    rounded
-    style="-webkit-app-region: drag"
-    height="25"
-    class="titlebar"
-    v-if="os === 'Mac OS'"
-  /> -->
   <div class="titlebar" v-else-if="os === 'Windows'"></div>
   <v-app-bar
     :elevation="4"
@@ -146,12 +147,6 @@
     <!-- <v-app-bar-nav-icon @click.stop="drawer = !drawer" /> -->
     <!-- show current url but make it editable-->
     <v-row no-gutters>
-      <!-- <v-col cols="1"> </v-col> -->
-      <!-- <v-col cols="3">
-        <v-btn icon @click="toggleDrawer()">
-          <v-icon>mdi-menu</v-icon>
-        </v-btn>
-      </v-col> -->
       <v-col
         cols="1"
         v-if="isLoggedIn"
@@ -218,16 +213,8 @@
           <v-icon size="18">mdi-circle</v-icon>
         </v-btn>
       </v-col>
-      <!-- <v-text-field
-            label="Prepend inner"
-            hide-details
-            prepend-icon="mdi-earth"
-          ></v-text-field> -->
     </v-row>
   </v-app-bar>
-  <!-- <v-main style="height: 100vh"></v-main>
-    </v-layout>
-  </v-card> -->
 </template>
 
 <script>
@@ -235,7 +222,6 @@
 import { useAuthStore } from '@/stores/auth.js';
 import { useUserStore } from '@/stores/user.js';
 import router from '@/router';
-// import snackBar from './utils/snackBar.vue';
 
 export default {
   name: 'Header',
@@ -245,6 +231,7 @@ export default {
       auth: useAuthStore(),
       user: useUserStore(),
       drawer: false,
+      show: false,
       snackbar: {
         visible: false,
         text: '',
@@ -279,6 +266,17 @@ export default {
     //     this.snackbar.visible = false;
     //   }, this.snackbar.timeout);
     // },
+    copyURL() {
+      // copy url to clipboard
+      navigator.clipboard.writeText(this.url);
+      //call triggerSnackbar method in profile.vue
+      //make tooltip appear and say copied
+      // this.show = true;
+      this.$refs.tool.innerText = 'Copied!';
+      setTimeout(() => {
+        this.$refs.tool.innerText = 'Copy Current URL';
+      }, 3000);
+    },
     getV() {
       console.log(this.version);
     },

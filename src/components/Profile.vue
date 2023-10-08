@@ -150,30 +150,47 @@
 
         <!-- show 3 images widget_pets, widget_spin.png, widget_plants.png -->
         <!-- make v-img clickable -->
-        <v-img src="widget_spin.png" @click="this.$router.push('/spin/')" style=""></v-img>
+        <v-img
+          src="widget_spin.png"
+          @click="triggerDialog('s2w')"
+          style=""
+        ></v-img>
         <p class="d-flex justify">
           <v-icon color="red">mdi-alert-circle</v-icon>Spin now!
         </p>
-        <v-img src="widget_pets.png"></v-img>
+        <v-img src="widget_pets.png" @click="triggerDialog('pet')"></v-img>
         <p class="d-flex justify">
           <v-icon color="green">mdi-check-circle</v-icon>Your pet is well cared
           for!
         </p>
 
-        <v-img src="widget_plants.png"></v-img>
+        <v-img src="widget_plants.png" @click="triggerDialog('plant')"></v-img>
         <p class="d-flex justify">
           <v-icon color="green">mdi-check-circle</v-icon>Your plants are
           healthy.
         </p>
       </v-col>
     </v-row>
+    <snackBar :snackbar="snackbar" />
+    <vdialog
+      :visible="showDialog"
+      :content="panel"
+      @close="showDialog = false"
+    />
   </v-container>
 </template>
 <script>
 import { useUserStore } from '@/stores/user.js';
 import { useAuthStore } from '@/stores/auth.js';
+import snackBar from '@/components/utils/snackBar.vue';
+import vdialog from '@/components/utils/dialogFrame.vue';
 export default {
   name: 'Profile',
+  components: {
+    snackBar,
+    vdialog,
+  },
+
   data() {
     return {
       user: useUserStore(),
@@ -183,6 +200,7 @@ export default {
       email: '',
       password: '',
       tab: 'mySpaces',
+
       emailRules: [
         (v) => !!v || 'E-mail is required',
         (v) => /.+@.+\..+/.test(v) || 'E-mail must be valid',
@@ -204,10 +222,60 @@ export default {
       nextArr: [],
       prevArr: [],
       spaceArr: [],
+      snackbar: {
+        visible: false,
+        text: '',
+        color: '',
+        icon: '',
+        timeout: 0,
+      },
+      showDialog: false,
+      panel: {
+        url: '',
+        width: 0,
+        height: 0,
+      },
     };
   },
-
   methods: {
+    triggerDialog(panel) {
+      this.showDialog = false;
+      if (panel == 's2w') {
+        //replace v-card with iframe content of smallworlds.app/panel/spintowin
+        this.panel.url = 'https://smallworlds.app/panel/spintowin';
+        this.panel.width = '780px';
+        this.panel.height = '650px';
+        this.showDialog = true;
+      }
+      if (panel == 'pet') {
+        //replace v-card with iframe content of smallworlds.app/panel/pet
+        this.panel.url = 'https://smallworlds.app/panel/pet';
+        this.panel.width = '218px';
+        this.panel.height = '280px';
+        this.showDialog = true;
+      }
+      if (panel == 'plant') {
+        //replace v-card with iframe content of smallworlds.app/panel/plant
+        this.panel.url = 'https://smallworlds.app/panel/plant';
+        this.panel.width = '218px';
+        this.panel.height = '280px';
+        this.showDialog = true;
+      }
+    },
+    triggerSnackbar(data) {
+      this.snackbar.visible = data.visible;
+      this.snackbar.text = data.text;
+      this.snackbar.color = data.color;
+      this.snackbar.icon = data.icon;
+      this.snackbar.timeout = data.timeout;
+      setTimeout(() => {
+        this.snackbar.visible = false;
+      }, this.snackbar.timeout);
+    },
+    updateDuration(data) {
+      this.durationData = data;
+    },
+
     async getThumb(avatar_id) {
       const res = await fetch('/api/avi/' + avatar_id, {
         method: 'GET',
@@ -326,6 +394,13 @@ export default {
         this.nextArr = this.spaceArr;
         this.prevArr = this.prevArr.slice(0, this.prevArr.length - 16);
       }
+      this.triggerSnackbar({
+        visible: true,
+        text: 'I know this is a bit broken..',
+        color: 'error',
+        icon: 'mdi-check-circle',
+        timeout: 3000,
+      });
     },
 
     async getSpaces(tab) {

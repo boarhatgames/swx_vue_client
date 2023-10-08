@@ -50,6 +50,7 @@
                 type="password"
                 :rules="passwordRules"
                 required
+                @keydown.enter="handleLogin"
               />
               <!-- remember me btn to left -->
               <!-- <v-col cols="12" sm="6" text-sm-left> -->
@@ -166,7 +167,7 @@ export default {
     async handleLogin() {
       try {
         await auth.login(this.credentials);
-        window.location.href = '/profile';
+        window.location.href = '/vueLogin#/vprofile';
       } catch (error) {
         console.log(error);
       }

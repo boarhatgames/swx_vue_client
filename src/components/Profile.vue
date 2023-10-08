@@ -151,7 +151,7 @@
         <!-- show 3 images widget_pets, widget_spin.png, widget_plants.png -->
         <!-- make v-img clickable -->
         <v-img
-          src="widget_spin.png"
+          src="imgs/widget_spin.png"
           @click="
             triggerDialog({
               url: 'https://smallworlds.app/panel/spintowin',
@@ -159,13 +159,12 @@
               height: '650px',
             })
           "
-          style=""
         ></v-img>
         <p class="d-flex justify">
           <v-icon color="red">mdi-alert-circle</v-icon>Spin now!
         </p>
         <v-img
-          src="widget_pets.png"
+          src="imgs/widget_pets.png"
           @click="
             triggerDialog({
               url: 'https://smallworlds.app/panel/pet',
@@ -180,7 +179,7 @@
         </p>
 
         <v-img
-          src="widget_plants.png"
+          src="imgs/widget_plants.png"
           @click="
             triggerDialog({
               url: 'https://smallworlds.app/panel/plant',

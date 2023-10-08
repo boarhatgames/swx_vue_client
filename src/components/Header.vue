@@ -26,12 +26,12 @@
         prepend-icon="mdi-view-dashboard"
         title="Profile"
         value="profile"
-        :active="getCurrentRoutes() === '/profile'"
+        :active="getCurrentRoutes() === '/vprofile'"
         @click="
           // if active is false then go to profile
-          if (getCurrentRoutes() !== '/profile')
+          if (getCurrentRoutes() !== '/vprofile')
             $emit('update:group', 'profile'),
-              $router.push('/profile'),
+              $router.push('/vprofile'),
               (drawer = false);
         "
       ></v-list-item>
@@ -150,7 +150,8 @@
       <v-col
         cols="1"
         v-if="isLoggedIn"
-        style="flex: 0 !important; align-self: center"
+        style="flex: 0 !important; align-self: center; -webkit-app-region: no-drag"
+
       >
         <v-btn icon @click="toggleDrawer()">
           <v-icon>mdi-menu</v-icon>
@@ -164,14 +165,14 @@
           v-model="url"
           hide-details
           prepend-inner-icon="mdi-earth"
-          @keyup.enter="
+          @keydown.enter="
             url = $event.target.value;
             gotoUrl(url);
           "
           style="-webkit-app-region: no-drag"
         ></v-text-field>
       </v-col>
-      <v-col align-self="center">
+      <v-col align-self="center" style="-webkit-app-region: no-drag">
         <!-- add reload button -->
         <v-btn icon @click="reload()">
           <v-icon size="18">mdi-reload</v-icon>
@@ -183,6 +184,7 @@
         align-self="center"
         @mouseover="colorBtns"
         @mouseleave="resetBtns"
+        style="-webkit-app-region: no-drag"
       >
         <v-btn
           icon
@@ -315,6 +317,7 @@ export default {
       console.log(url);
       // always go to url
       window.location.href = url;
+      this.reload();
     },
     reload() {
       // reload page

@@ -68,11 +68,12 @@ export default defineComponent({
       );
       const data = await response.json();
       this.spaceName = data.name;
-      this.spaceDesc = data.desc.toString();
+      if (data.desc != null) this.spaceDesc = data.desc.toString();
+      else this.spaceDesc = 'No description';
     },
   },
   async mounted() {
-    await this.setContents();
+    // await this.setContents();
     const iFrame = this.$refs.frame;
     iFrame.addEventListener('load', () => {
       // get url of iframe
@@ -83,8 +84,8 @@ export default defineComponent({
       console.log(this.url);
       this.frameChange();
       router.push(this.url);
-      this.spaceId = router.currentRoute.value.path.replace(/[^0-9]/g, '');
     });
+    this.spaceId = router.currentRoute.value.path.replace(/[^0-9]/g, '');
     await this.getSpaceName(this.spaceId);
     await window.rpc.setRPC({
       details: 'At ' + this.spaceName,

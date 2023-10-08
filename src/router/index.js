@@ -1,29 +1,23 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
-import authMiddleware from './middleware/auth-middleware'
+import authMiddleware from './middleware/auth-middleware';
 
 const routes = [
   {
     path: '/',
     name: 'root',
-    component: () =>
-      import('../views/ProfileView.vue'),
-      // meta: { layout: 'auth' },
-
+    component: () => import('../views/ProfileView.vue'),
+    // meta: { layout: 'auth' },
   },
   {
     path: '/space/:id/',
     name: 'space',
-    component: () =>
-        import('../views/SpaceView.vue'),
-
+    component: () => import('../views/SpaceView.vue'),
   },
   {
     path: '/invite',
     name: 'invite',
-    component: () =>
-      import('../views/InviteView.vue'),
-      meta: { layout: 'auth' },
-
+    component: () => import('../views/InviteView.vue'),
+    meta: { layout: 'auth' },
   },
   {
     path: '/about',
@@ -39,11 +33,10 @@ const routes = [
     name: 'login',
     component: () =>
       import(/* webpackChunkName: "login" */ '../views/LoginView.vue'),
-      meta: { layout: 'auth' },
-
+    meta: { layout: 'auth' },
   },
   {
-    path: '/profile',
+    path: '/vprofile',
     name: 'profile',
     component: () =>
       import(/* webpackChunkName: "profile" */ '../views/ProfileView.vue'),
@@ -54,7 +47,7 @@ const routes = [
     name: 'register',
     component: () =>
       import(/* webpackChunkName: "register" */ '../views/RegisterView.vue'),
-      meta: { layout: 'auth' },
+    meta: { layout: 'auth' },
   },
 ];
 

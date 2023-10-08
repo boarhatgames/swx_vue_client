@@ -42,18 +42,21 @@ export const useAuthStore = defineStore({
     },
     async logout() {
       const user = useUserStore();
-      const router = useRouter();
-      localStorage.clear();
-      this.$reset();
-      user.$reset();
+
       try {
+        const router = useRouter();
         // add authorization header to axios
         let token = this.$state.token;
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         await axios.post('/api/auth/logout');
+        localStorage.clear();
+        this.$reset();
+        user.$reset();
         router.push('/login');
       } catch (error) {
-        window.location.href = '/';
+        const router = useRouter();
+
+        window.location.href = '/vueLogin#/login';
       }
     },
     async register({ commit }, { username, password }) {

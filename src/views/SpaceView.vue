@@ -24,6 +24,7 @@ export default defineComponent({
       home: false,
       type: null,
       content: '',
+      count: 0,
     };
   },
   methods: {
@@ -68,8 +69,25 @@ export default defineComponent({
       );
       const data = await response.json();
       this.spaceName = data.name;
-      if (data.desc != null) this.spaceDesc = data.desc.toString();
-      else this.spaceDesc = 'No description';
+      this.spaceDesc = data.desc.toString();
+      this.spaceId = router.currentRoute.value.path.replace(/[^\/]+$/, '');
+      this.spaceId = this.spaceId.replace('/space/', '');
+
+      await window.rpc.setRPC({
+        details: 'At ' + data.name,
+        state: data.desc.toString(),
+        largeImageKey: 'logo',
+        largeImageText: 'SWX',
+        startTimestamp: Date.now(),
+        // show buttons go there
+        buttons: [
+          {
+            label: 'Go there',
+            // app link
+            url: 'swx://smallworlds.app/' + this.spaceId,
+          },
+        ],
+      });
     },
   },
   async mounted() {
@@ -81,27 +99,41 @@ export default defineComponent({
       //remove the https://smallworlds.app from the url and add the rest to our router
       this.url = this.url.replace('https://smallworlds.app', '');
       //update the current url to the frame address
-      console.log(this.url);
+      console.log('in this frame' + this.url);
       this.frameChange();
+      this.count++;
+
       router.push(this.url);
+      if (this.count >= 0) {
+        this.getSpaceName(this.spaceId);
+      }
+      //go through mounted again
+      // window.location.href = this.url;
+      // //update discord rpc
+      // this.getSpaceName(this.spaceId);
+      // window.rpc.setRPC({
+      //   details: 'At ' + this.spaceName,
+      //   state: this.spaceDesc,
+      //   largeImageKey: 'logo',
+      //   largeImageText: 'SWX',
+      //   startTimestamp: Date.now(),
+      //   // show buttons go there
+      //   buttons: [
+      //     {
+      //       label: 'Go there',
+      //       // app link
+      //       url: 'swx://smallworlds.app' + this.url,
+      //     },
+      //   ],
+      // });
     });
-    this.spaceId = router.currentRoute.value.path.replace(/[^0-9]/g, '');
+    //get url after /space/ or /home/ and set it to spaceId
+    this.spaceId = router.currentRoute.value.path.replace(/[^\/]+$/, '');
+    // this return /space/scarecrow/ 
+    // get rid of /space/ and set it to spaceId
+    this.spaceId = this.spaceId.replace('/space/', '');
+    console.log('spaceId: ' + this.spaceId);
     await this.getSpaceName(this.spaceId);
-    await window.rpc.setRPC({
-      details: 'At ' + this.spaceName,
-      state: this.spaceDesc,
-      largeImageKey: 'logo',
-      largeImageText: 'SWX',
-      startTimestamp: Date.now(),
-      // show buttons go there
-      buttons: [
-        {
-          label: 'Go there',
-          // app link
-          url: 'swx://smallworlds.app' + this.url,
-        },
-      ],
-    });
   },
   //listen for when iframe url changes
   watch: {},

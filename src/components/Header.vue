@@ -172,9 +172,9 @@
           style="-webkit-app-region: no-drag"
         ></v-text-field>
       </v-col>
-      <v-col align-self="center" style="-webkit-app-region: no-drag">
+      <v-col align-self="center" >
         <!-- add reload button -->
-        <v-btn icon @click="reload()">
+        <v-btn icon @click="reload()" style="-webkit-app-region: no-drag">
           <v-icon size="18">mdi-reload</v-icon>
         </v-btn>
       </v-col>

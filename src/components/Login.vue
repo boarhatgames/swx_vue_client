@@ -113,21 +113,21 @@
       />
     </v-col>
   </v-row>
+  <snackBar :snackbar="snackbar" />
 </template>
 
 <script>
-import { reactive, watchEffect } from 'vue';
+import { reactive } from 'vue';
 import { useAuthStore } from '../stores/auth';
-const auth = useAuthStore();
+import snackBar from '../components/utils/snackBar.vue';
 
+const auth = useAuthStore();
 export default {
   name: 'Login',
+  components: {
+    snackBar,
+  },
   data: () => ({
-    //grab data.url from api link and set image
-    credentials: reactive({
-      email: '',
-      password: '',
-    }),
     snackbar: {
       visible: false,
       text: '',
@@ -135,9 +135,14 @@ export default {
       icon: '',
       timeout: null,
     },
+    //grab data.url from api link and set image
+    credentials: reactive({
+      email: '',
+      password: '',
+    }),
     doInterval: true,
     img: '',
-    emailRules: [
+    emailRles: [
       (value) => {
         if (value) return true;
 
@@ -164,13 +169,68 @@ export default {
   }),
 
   methods: {
+    triggerSnackbar(data) {
+      this.snackbar.visible = data.visible;
+      this.snackbar.text = data.text;
+      this.snackbar.color = data.color;
+      this.snackbar.icon = data.icon;
+      this.snackbar.timeout = data.timeout;
+      setTimeout(() => {
+        this.snackbar.visible = false;
+      }, this.snackbar.timeout);
+    },
+
     async handleLogin() {
-      try {
-        await auth.login(this.credentials);
-        window.location.href = '/vueLogin#/vprofile';
-      } catch (error) {
-        console.log(error);
+      // is email valid and password is at least 6 characters?
+      if (!this.emailV) this.Vtext = 'Email is required.';
+      else if (!this.passwordV)
+        this.Vtext = 'Password must be at least 6 characters.';
+      else this.Vtext = 'Invalid credentials.';
+
+      if (!this.emailV || !this.passwordV) {
+        //call snackBar function in App.vue
+        // this.$emit('triggerSnackbar', {
+        //   visible: true,
+        //   text: 'Invalid credentials.',
+        //   color: 'red',
+        //   timeout: 6000,
+        //   icon: 'mdi-alert-circle',
+        // });
+        this.triggerSnackbar({
+          visible: true,
+          text: this.Vtext,
+          color: 'red',
+          timeout: 6000,
+          icon: 'mdi-alert-circle',
+        });
+        return;
       }
+      try {
+        if (await auth.login(this.credentials))
+          this.$router.push('/vprofile');
+        else
+        
+        return;
+      } catch (error) {
+        //call snackBar function in App.vue
+        // this.$emit('triggerSnackbar', {
+        //   visible: true,
+        //   text: 'Invalid credentials.',
+        //   color: 'red',
+        //   timeout: 6000,
+        //   icon: 'mdi-alert-circle',
+        // });
+        this.triggerSnackbar({
+          visible: true,
+          text: 'Invalid credentials.',
+          color: 'red',
+          timeout: 6000,
+          icon: 'mdi-alert-circle',
+        });
+        console.log(error);
+        console.log('Invalid credentials. Login.vue');
+      }
+
       this.doInterval = false;
 
       // go to profile, but refresh header component
@@ -232,7 +292,6 @@ export default {
       return auth.authUser;
     },
   },
-  // emits: ['triggerSnackbar'],
 
   watch: {
     'credentials.email': function (val) {
@@ -250,6 +309,15 @@ export default {
         this.emailV = false;
       }
     },
+    'credentials.password': function (val) {
+      if (val.length >= 6) {
+        this.doInterval = false;
+        this.passwordV = true;
+      } else {
+        this.passwordV = false;
+      }
+    },
   },
+  emits: ['triggerSnackbar'],
 };
 </script>

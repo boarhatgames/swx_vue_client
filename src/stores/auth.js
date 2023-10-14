@@ -26,13 +26,18 @@ export const useAuthStore = defineStore({
           email,
           password,
         });
-        // this.commit('setAuthUser', data);
-        this.updateState({
-          email: data.email,
-          isLoggedIn: true,
-          token: data.api,
-        });
-        await user.storeInfo();
+        if (data.success) {
+          // this.commit('setAuthUser', data);
+          this.updateState({
+            email: data.email,
+            isLoggedIn: true,
+            token: data.api,
+          });
+          await user.storeInfo();
+          return true;
+        } 
+        else
+          throw new Error('Bad credentials');
       } catch (error) {
         if (error.response && error.response.status === 401) {
           throw new Error('Bad credentials');

@@ -103,6 +103,7 @@
 </template>
 
 <script>
+import vdialog from '@/components/utils/dialogFrame.vue';
 export default {
   name: 'Login',
   data: () => ({
@@ -153,7 +154,8 @@ export default {
             //   name: 'Register',
             //   params: { code: this.code },
             // });
-            window.frame.register(this.code);
+            // window.frame.register(this.code);
+            
           } else {
             this.$toast.error(data.message);
           }

@@ -61,7 +61,7 @@
               <!-- remember me checkbox -->
               <v-row>
                 <v-col cols="12" sm="6" text-sm-left>
-                  <v-checkbox label="Remember me" color="blue" />
+                  <v-checkbox label="Remember me" color="blue" v-model="credentials.remember"/>
                 </v-col>
                 <v-col sm="5" text-sm-right>
                   <!-- make it align on same as remember me text -->
@@ -118,8 +118,8 @@
 
 <script>
 import { reactive } from 'vue';
-import { useAuthStore } from '../stores/auth';
-import snackBar from '../components/utils/snackBar.vue';
+import { useAuthStore } from '@stores/auth';
+import snackBar from '@components/utils/snackBar.vue';
 
 const auth = useAuthStore();
 export default {
@@ -139,6 +139,7 @@ export default {
     credentials: reactive({
       email: '',
       password: '',
+      remember: false,
     }),
     doInterval: true,
     img: '',
@@ -183,19 +184,10 @@ export default {
     async handleLogin() {
       // is email valid and password is at least 6 characters?
       if (!this.emailV) this.Vtext = 'Email is required.';
-      else if (!this.passwordV)
-        this.Vtext = 'Password must be at least 6 characters.';
+      else if (!this.passwordV) this.Vtext = 'Password must be at least 6 characters.';
       else this.Vtext = 'Invalid credentials.';
 
       if (!this.emailV || !this.passwordV) {
-        //call snackBar function in App.vue
-        // this.$emit('triggerSnackbar', {
-        //   visible: true,
-        //   text: 'Invalid credentials.',
-        //   color: 'red',
-        //   timeout: 6000,
-        //   icon: 'mdi-alert-circle',
-        // });
         this.triggerSnackbar({
           visible: true,
           text: this.Vtext,
@@ -206,20 +198,14 @@ export default {
         return;
       }
       try {
-        if (await auth.login(this.credentials))
+        if (await auth.login(this.credentials)){
+          if (this.remember)
+            window.electron.remember(this.credentials.email, this.credentials.password);
           this.$router.push('/vprofile');
+        }
         else
-        
         return;
       } catch (error) {
-        //call snackBar function in App.vue
-        // this.$emit('triggerSnackbar', {
-        //   visible: true,
-        //   text: 'Invalid credentials.',
-        //   color: 'red',
-        //   timeout: 6000,
-        //   icon: 'mdi-alert-circle',
-        // });
         this.triggerSnackbar({
           visible: true,
           text: 'Invalid credentials.',
@@ -315,6 +301,13 @@ export default {
         this.passwordV = true;
       } else {
         this.passwordV = false;
+      }
+    },
+    'credentials.remember': function (val) {
+      if (val) {
+        this.remember = true;
+      } else {
+        this.remember = false;
       }
     },
   },

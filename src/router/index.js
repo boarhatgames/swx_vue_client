@@ -49,6 +49,13 @@ const routes = [
       import(/* webpackChunkName: "register" */ '../views/RegisterView.vue'),
     meta: { layout: 'auth' },
   },
+  {
+    path: '/:catchAll(.*)*',
+    name: 'not-found',
+    component: () =>
+      import('../views/IframeView.vue'),
+
+  }
 ];
 
 const router = createRouter({

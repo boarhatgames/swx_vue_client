@@ -221,8 +221,8 @@
 
 <script>
 // import { ipcRenderer } from 'electron';
-import { useAuthStore } from '@/stores/auth.js';
-import { useUserStore } from '@/stores/user.js';
+import { useAuthStore } from '@stores/auth.js';
+import { useUserStore } from '@stores/user.js';
 import router from '@/router';
 
 export default {

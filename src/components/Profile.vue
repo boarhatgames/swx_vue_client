@@ -23,6 +23,13 @@
             </v-card>
           </v-slide-group-item>
         </v-slide-group>
+        <!-- Display user snapUrl -->
+        <v-img
+          :src="user.$state.defaultAvatar.snapUrl"
+          height="250"
+          width="150"
+          class="mx-auto"
+        ></v-img>
         <v-card-title class="align-center justify-center d-flex">
           {{ user.$state.defaultAvatar.fullName }}</v-card-title
         >
@@ -203,10 +210,10 @@
   </v-container>
 </template>
 <script>
-import { useUserStore } from '@/stores/user.js';
-import { useAuthStore } from '@/stores/auth.js';
-import snackBar from '@/components/utils/snackBar.vue';
-import vdialog from '@/components/utils/dialogFrame.vue';
+import { useUserStore } from '@stores/user.js';
+import { useAuthStore } from '@stores/auth.js';
+import snackBar from '@components/utils/snackBar.vue';
+import vdialog from '@components/utils/dialogFrame.vue';
 export default {
   name: 'Profile',
   components: {
@@ -258,6 +265,7 @@ export default {
         width: 0,
         height: 0,
       },
+      currentPage: 0,
     };
   },
   methods: {
@@ -320,92 +328,24 @@ export default {
     },
 
     nextSpace() {
-      //show next 16 spaces
-      //if array contains more than 16 spaces, show next button
-      //if array contains less than 16 spaces, hide next button
-      //if array contains less than 16 spaces, hide prev button
-      //if array contains more than 16 spaces, show prev button
-      // use nextArr, prevArr, spaceArr, spaces
-
-      //if nextArr is empty, hide next button
-      if (this.nextArr.length === 0) {
-        this.rightActive = true;
-        this.leftActive = false;
-        return;
-      }
-      //if nextArr is not empty, show next button
-      else {
-        this.rightActive = false;
-        this.leftActive = true;
-      }
-      //if prevArr is empty, hide prev button
-      if (this.prevArr.length === 0) {
-        this.leftActive = true;
-        this.rightActive = false;
-      }
-      //if prevArr is not empty, show prev button
-      else {
-        this.leftActive = false;
-        // this.rightActive = true;
-      }
-      //if nextArr is less than 16, show nextArr
-      if (this.nextArr.length < 16) {
+      if (this.currentPage + 1 < this.spaceArr.length) {
+        this.prevArr = this.spaces;
         this.spaces = this.nextArr;
-        this.prevArr = this.spaceArr;
-        this.nextArr = [];
-      }
-      //if nextArr is more than 16, show nextArr
-      else {
-        this.spaces = this.nextArr.slice(0, 16);
-        this.prevArr = this.spaceArr;
-        this.nextArr = this.nextArr.slice(16, this.nextArr.length);
+        this.currentPage++;
+        this.nextArr = this.spaceArr[this.currentPage + 1];
+        this.leftActive = false;
+        this.rightActive = this.currentPage + 1 >= this.spaceArr.length;
       }
     },
-    // NEEDS TLC
     prevSpace() {
-      //if prevArr is empty, hide prev button
-      if (this.prevArr.length === 0) {
-        this.leftActive = true;
-        this.rightActive = false;
-        return;
-      }
-      //if prevArr is not empty, show prev button
-      else {
-        this.leftActive = false;
-        this.rightActive = true;
-      }
-      //if nextArr is empty, hide next button
-      if (this.nextArr.length === 0) {
-        this.rightActive = true;
-        this.leftActive = false;
-      }
-      //if nextArr is not empty, show next button
-      else {
-        this.rightActive = false;
-        // this.leftActive = true;
-      }
-      //if prevArr is less than 16, show prevArr
-      if (this.prevArr.length < 16) {
+      if (this.currentPage > 0) {
+        this.nextArr = this.spaces;
         this.spaces = this.prevArr;
-        this.nextArr = this.spaceArr;
-        this.prevArr = [];
+        this.currentPage--;
+        this.prevArr = this.spaceArr[this.currentPage - 1];
+        this.rightActive = false;
+        this.leftActive = this.currentPage <= 0;
       }
-      //if prevArr is more than 16, show prevArr
-      else {
-        this.spaces = this.prevArr.slice(
-          this.prevArr.length - 16,
-          this.prevArr.length
-        );
-        this.nextArr = this.spaceArr;
-        this.prevArr = this.prevArr.slice(0, this.prevArr.length - 16);
-      }
-      this.triggerSnackbar({
-        visible: true,
-        text: 'I know this is a bit broken..',
-        color: 'error',
-        icon: 'mdi-check-circle',
-        timeout: 3000,
-      });
     },
 
     async getSpaces(tab) {
@@ -426,65 +366,43 @@ export default {
         // return;
       }
       if (tab === 'mySpaces') {
-        // const res = await fetch('/api/spaces/mine', {
-        //   method: 'GET',
-        //   headers: {
-        //     'Content-Type': 'application/json',
-        //     Authorization: 'Bearer ' + this.auth.$state.token,
-        //   },
-        // });
-        // const data = await res.json();
-        // this.spaces = data;
-        // for (let i = 0; i < data.length; i++) {
-        //   if (data[i].currentVisitors > 0)
-        //     this.onlineAvi = await this.getThumb(data[i].visitors[0].avatar_id);
-        //   if (data[i].currentVisitors > 1) this.visitorText = 'Visitors';
-        //   else this.visitorText = 'Visitor';
-        // }
         this.spaces = [];
+        this.spaceArr = [];
         this.spaces = this.mySpaces;
         this.spaceArr = this.mySpaces;
-        //If array contains more than 16 spaces, show next button
-        if (this.spaces.length > 16) {
+
+        // set pages
+        // spaces is a 2d array
+        if (this.spaces.length > 1) {
           this.rightActive = false;
-          // store the rest of the spaces in a new array
-          this.spaces = this.spaces.slice(0, 16);
-          this.nextArr = this.mySpaces.slice(16, this.mySpaces.length);
-          this.prevArr = this.spaces;
+          this.nextArr = this.spaces[1];
         } else {
+          this.nextArr = [];
           this.rightActive = true;
-          this.leftActive = true;
         }
-        // });
+        this.leftActive = true;
+        // set array at index 0
+        this.spaces = this.spaces[0];
+        this.prevArr = this.spaces[0];
       } else if (tab === 'favs') {
-        // const res = await fetch('/api/spaces/favs', {
-        //   method: 'GET',
-        //   headers: {
-        //     'Content-Type': 'application/json',
-        //     Authorization: 'Bearer ' + this.auth.$state.token,
-        //   },
-        // });
-        // const data = await res.json();
-        // this.spaces = data;
-        // for (let i = 0; i < data.length; i++) {
-        //   if (data[i].currentVisitors > 0)
-        //     this.onlineAvi = await this.getThumb(data[i].visitors[0].avatar_id);
-        //   if (data[i].currentVisitors > 1) this.visitorText = 'Visitors';
-        //   else this.visitorText = 'Visitor';
         this.spaces = [];
+        this.spaceArr = [];
         this.spaces = this.myFavs;
-        if (this.spaces.length > 16) {
+        this.spaceArr = this.myFavs;
+
+        if (this.spaces.length > 1) {
           this.rightActive = false;
-          // store the rest of the spaces in a new array
-          this.spaces = this.spaces.slice(0, 16);
-          this.nextArr = this.myFavs.slice(16, this.myFavs.length);
+          this.nextArr = this.spaces[1];
         } else {
+          this.nextArr = [];
           this.rightActive = true;
-          this.leftActive = true;
         }
-        // }
-        // get favs
+        // set array at index 0
+        this.leftActive = true;
+        this.spaces = this.spaces[0];
+        this.prevArr = this.spaces[0];
       } else if (tab === 'pop') {
+        //TODO
         this.spaces = [];
         if (this.spaces.length > 16) {
           this.rightActive = false;
@@ -496,20 +414,25 @@ export default {
       } else if (tab === 'featured') {
         // get featured
         this.spaces = [];
+        this.spaceArr = [];
         this.spaces = this.featured;
-        if (this.spaces.length > 16) {
+        this.spaceArr = this.featured;
+        if (this.spaces.length > 1) {
           this.rightActive = false;
-          // store the rest of the spaces in a new array
-          this.spaces = this.spaces.slice(0, 16);
-          this.nextArr = this.featured.slice(16, this.featured.length);
-          this.prevArr = this.spaces;
+          this.nextArr = this.spaces[1];
         } else {
+          this.nextArr = [];
           this.rightActive = true;
-          this.leftActive = true;
         }
+        // set array at index 0
+        this.currentPage = 0;
+        this.leftActive = true;
+        this.spaces = this.spaces[0];
+        this.prevArr = this.spaces[0];
       }
     },
   },
+
   mounted() {
     this.getSpaces(this.tab);
     window.rpc.setRPC({

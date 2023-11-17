@@ -6,7 +6,7 @@
 import { defineComponent } from 'vue';
 
 // Components
-import S2W from '../components/S2W.vue';
+import S2W from '@/components/S2W.vue';
 
 export default defineComponent({
   name: 'SpinToWin',

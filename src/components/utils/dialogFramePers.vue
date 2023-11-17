@@ -1,9 +1,8 @@
 <template>
-  <v-dialog v-model="dialog">
+  <v-dialog v-model="dialog" persistent>
     <v-card
       :width="content.width"
       :height="content.height"
-      v-click-outside="onClickOutside"
     >
       <!-- <v-btn color="primary" dark @click.stop="dialog = false" /> -->
       <iframe

@@ -100,13 +100,23 @@
       />
     </v-col>
   </v-row>
+  <vdialog :visible="showDialog" :content="panel" />
 </template>
 
 <script>
-import vdialog from '@/components/utils/dialogFrame.vue';
+import vdialog from '@/components/utils/dialogFramePers.vue';
 export default {
   name: 'Login',
+  components: {
+    vdialog,
+  },
   data: () => ({
+    showDialog: false,
+    panel: {
+      url: '',
+      width: 0,
+      height: 0,
+    },
     code: '',
     password: '',
     //grab data.url from api link and set image
@@ -155,7 +165,10 @@ export default {
             //   params: { code: this.code },
             // });
             // window.frame.register(this.code);
-            
+            this.showDialog = true;
+            this.panel.url = 'https://smallworlds.app/code/' + this.code;
+            this.panel.width = 680;
+            this.panel.height = 725;
           } else {
             this.$toast.error(data.message);
           }

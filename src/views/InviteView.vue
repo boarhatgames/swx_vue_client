@@ -6,7 +6,7 @@
 import { defineComponent } from 'vue';
 
 // Components
-import Invite from '../components/Invite.vue';
+import Invite from '@/components/Invite.vue';
 
 export default defineComponent({
   name: 'InviteView',

@@ -9,12 +9,27 @@
             v-slot="{ isSelected, toggle }"
           >
             <v-card
-              :color="isSelected ? '#0099cc' : 'grey-lighten-1'"
+              :color="isSelected ? '#0099cc' : ''"
               class="ma-3"
               height="250"
-              width="150"
+              width="180"
               @click="toggle"
             >
+              <!-- show pet url next to avatar -->
+              <v-img :src="user.$state.defaultAvatar.snapUrl">
+                <!-- position to lower -->
+              </v-img>
+              <v-img
+                :src="user.$state.defaultAvatar.pet.snapUrl"
+                style="
+                  position: absolute;
+                  bottom: 0;
+                  right: 0;
+                  left: 2;
+                  width: 128px;
+                  height: 128px;
+                "
+              ></v-img>
               <div class="d-flex fill-height align-center justify-center">
                 <v-scale-transition>
                   <v-icon v-if="isSelected" color="white" size="48"></v-icon>
@@ -24,12 +39,6 @@
           </v-slide-group-item>
         </v-slide-group>
         <!-- Display user snapUrl -->
-        <v-img
-          :src="user.$state.defaultAvatar.snapUrl"
-          height="250"
-          width="150"
-          class="mx-auto"
-        ></v-img>
         <v-card-title class="align-center justify-center d-flex">
           {{ user.$state.defaultAvatar.fullName }}</v-card-title
         >
@@ -130,6 +139,12 @@
               </p>
               <p
                 class="d-flex font-weight-bold text-caption justify-center"
+                style="
+                  /* cut off text if over 30 chars */
+                  white-space: nowrap;
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                "
                 v-else
               >
                 {{ space.name }}
@@ -241,6 +256,20 @@ export default {
       mySpaces: [],
       favs: [],
       featured: [],
+      n: [
+        {
+          imageSrc: 'https://cdn.vuetifyjs.com/images/cards/docks.jpg',
+        },
+        {
+          imageSrc: 'https://cdn.vuetifyjs.com/images/cards/docks.jpg',
+        },
+        {
+          imageSrc: 'https://cdn.vuetifyjs.com/images/cards/docks.jpg',
+        },
+        {
+          imageSrc: 'https://cdn.vuetifyjs.com/images/cards/docks.jpg',
+        },
+      ],
       popular: [],
       mySpacesActive: true,
       favsActive: false,

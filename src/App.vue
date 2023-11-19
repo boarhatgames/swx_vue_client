@@ -35,4 +35,7 @@ export default {
   width: 100%;
   overflow: hidden;
 }
+:focus {
+  outline: none;
+}
 </style>

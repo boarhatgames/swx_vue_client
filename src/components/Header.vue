@@ -47,9 +47,9 @@
           ></v-list-item>
         </template>
         <v-list-item value="pet">
-          <template v-slot:prepend="{ isActive }">
+          <template v-slot:prepend="{ petActiv }">
             <v-list-item-action start>
-              <v-switch color="info" :model-value="isActive"></v-switch>
+              <v-switch color="info" :model-value="petActive" @change="switchToggle('updateTakePet')"></v-switch>
             </v-list-item-action>
           </template>
 
@@ -58,18 +58,18 @@
           <v-list-item-subtitle> In-World </v-list-item-subtitle>
         </v-list-item>
         <v-list-item value="header">
-          <template v-slot:prepend="{ isActive }">
-            <v-list-item-action start>
-              <v-switch color="info" :model-value="isActive"></v-switch>
+          <template v-slot:prepend="{ headerActiv }">
+            <v-list-item-action start >
+              <v-switch color="info" :model-value="headerActive" @change="switchToggle('header')"></v-switch>
             </v-list-item-action>
           </template>
 
           <v-list-item-title>SW Header</v-list-item-title>
         </v-list-item>
         <v-list-item value="experiment">
-          <template v-slot:prepend="{ isActive }">
+          <template v-slot:prepend="{ experActiv }">
             <v-list-item-action start>
-              <v-switch color="info" :model-value="isActive"></v-switch>
+              <v-switch color="info" :model-value="experActive" @change="switchToggle('experiment')"></v-switch>
             </v-list-item-action>
           </template>
 
@@ -90,7 +90,7 @@
         <v-list-item title="View Items Wearing" value="itemsWorn" />
         <v-list-item to="settings" title="Account" value="account" />
       </v-list-group>
-      <v-list-group value="admin">
+      <v-list-group value="admin" v-if="isAdmin || hasInviteControl">
         <template v-slot:activator="{ props }">
           <v-list-item
             v-bind="props"
@@ -99,13 +99,13 @@
             value="home"
           ></v-list-item>
         </template>
-        <v-list-item title="SMI" value="SMI" />
-        <v-list-item title="Upload" value="upload" />
-        <v-list-item title="Invite" value="invite" />
-        <v-list-item title="Config Strings" value="config" />
-        <v-list-item title="Database" value="database" />
+        <v-list-item title="SMI" value="SMI" v-if="isAdmin" />
+        <v-list-item title="Upload" value="upload" v-if="isAdmin" />
+        <v-list-item title="Invite" value="invite" v-if="hasInviteControl || isSuperAdmin" />
+        <v-list-item title="Config Strings" value="config" v-if="isAdmin" />
+        <v-list-item title="Database" value="database" v-if="isSuperAdmin" />
 
-        <v-list-group value="items">
+        <v-list-group value="items" v-if="hasWebsiteControl">
           <template v-slot:activator="{ props }">
             <v-list-item
               v-bind="props"
@@ -224,6 +224,7 @@
 import { useAuthStore } from '@stores/auth.js';
 import { useUserStore } from '@stores/user.js';
 import router from '@/router';
+import axios from 'axios';
 
 export default {
   name: 'Header',
@@ -234,6 +235,9 @@ export default {
       user: useUserStore(),
       drawer: false,
       show: false,
+      petActive: false,
+      headerActive: false,
+      experActive: false,
       snackbar: {
         visible: false,
         text: '',
@@ -258,16 +262,37 @@ export default {
   },
 
   methods: {
-    // triggerSnackbar(data) {
-    //   this.snackbar.visible = data.visible;
-    //   this.snackbar.text = data.text;
-    //   this.snackbar.color = data.color;
-    //   this.snackbar.icon = data.icon;
-    //   this.snackbar.timeout = data.timeout;
-    //   setTimeout(() => {
-    //     this.snackbar.visible = false;
-    //   }, this.snackbar.timeout);
-    // },
+    switchToggle(toggle) {
+      // this.petActive = !this.petActive;
+      if (toggle === 'updateTakePet')
+        this.petActive = !this.petActive;
+      if (toggle === 'header')
+        this.headerActive = !this.headerActive;
+      if (toggle === 'experiment')
+        this.experActive = !this.experActive;
+      this.user.$patch({
+        defaultAvatar: {
+          takePet: this.petActive,
+          header: this.headerActive,
+          experiment: this.experActive,
+        },
+      });
+      this.user.updateState(this.user.$state);
+      this.callToggle(toggle);
+    },
+
+    async callToggle(toggle)
+    {
+      let token = JSON.parse(localStorage.getItem('AUTH_STATE')).token;
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      await axios.post('/api/avatar/' + toggle, {
+        id: this.user.$state.defaultAvatar.id,
+        enableExperi: this.experActive,
+        enableHeader: this.headerActive,
+        takePet: this.petActive,
+      });
+    },
+
     copyURL() {
       // copy url to clipboard
       navigator.clipboard.writeText(this.url);
@@ -348,6 +373,11 @@ export default {
   //when router changes update url
   mounted() {
     this.os = this.operatingSystem();
+ 
+      this.petActive = (this.user.$state.defaultAvatar.takePet) ? true : false;
+      this.headerActive = (this.user.$state.defaultAvatar.header) ? true : false;
+      this.experActive = (this.user.$state.defaultAvatar.experiment) ? true : false;
+    
   },
   watch: {
     group() {
@@ -357,14 +387,36 @@ export default {
     $route(to) {
       this.url = window.location.href;
     },
+    // if this.petActive changes then update user
+    
     //if iframe url changes then update url
   },
+
+  //watch after load
+
 
   emits: ['update:group'],
   computed: {
     isLoggedIn() {
       return this.auth.$state.isLoggedIn;
     },
+    isAdmin()
+    {
+      return this.auth.$state.primaryGroupId == 1 || this.auth.$state.primaryGroupId == 2 || this.auth.$state.primaryGroupId == 13;
+    },
+    hasWebsiteControl()
+    {
+      return this.auth.$state.secondaryGroupIds.includes(17);
+    },
+    hasInviteControl()
+    {
+      return this.auth.$state.secondaryGroupIds.includes(22);
+    },
+    isSuperAdmin()
+    {
+      return this.auth.$state.primaryGroupId == 1;
+    },
+ 
   },
 };
 </script>

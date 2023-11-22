@@ -10,6 +10,8 @@ export const useAuthStore = defineStore({
       email: null,
       isLoggedIn: false,
       token: null,
+      primaryGroupId: null,
+      secondaryGroupIds: null,
     },
   actions: {
     updateState(data) {
@@ -29,9 +31,11 @@ export const useAuthStore = defineStore({
         if (data.success) {
           // this.commit('setAuthUser', data);
           this.updateState({
-            email: data.email,
+            email: data.user.email,
             isLoggedIn: true,
             token: data.api,
+            primaryGroupId: data.user.primaryGroupId,
+            secondaryGroupIds: data.user.secondaryGroupIds,
           });
           await user.storeInfo();
           return true;

@@ -1,6 +1,5 @@
 <template>
   <v-row justify="center" no-gutters>
-    <!-- shift page down -->
     <v-col cols="6">
       <v-card
         class="mx-auto"
@@ -29,9 +28,7 @@
           ></v-card>
 
           <v-card-title class="text-center">
-            <!-- <p class="heading font-weight-thin mb-4">
-              Ready to Join?
-            </p> -->
+         
           </v-card-title>
 
           <v-form>
@@ -42,18 +39,9 @@
               :rules="emailRules"
               required
             />
-
-            <!-- remember me btn to left -->
-            <!-- <v-col cols="12" sm="6" text-sm-left> -->
-            <!-- <v-checkbox text-sm-left label="Remember me" color="primary" /> -->
-
-            <!-- </v-col> -->
-            <!--  -->
           </v-form>
-          <!-- remember me checkbox -->
           <v-row>
             <v-col sm="5" text-sm-right>
-              <!-- make it align on same as remember me text -->
             </v-col>
           </v-row>
           <v-row>
@@ -72,25 +60,15 @@
           </v-row>
         </v-card>
       </v-row>
-      <!-- add discord button in a v-card -->
       <v-row justify="center" no-gutters>
-        <!-- <v-card
-            color="transparent"
-            elevation="0"
-            class="mt-15"
-          > -->
-        <!-- icon button -->
-        <!-- center it -->
 
         <v-btn
           icon="mdi-discord"
           class="mx-auto"
           href="discord://-/invite/E6mbjz4nkh"
         />
-        <!-- </v-card> -->
       </v-row>
     </v-col>
-    <!-- add an random image to the right -->
 
     <v-col cols="6">
       <v-img
@@ -105,6 +83,9 @@
 
 <script>
 import vdialog from '@/components/utils/dialogFramePers.vue';
+import { useAuthStore } from '@stores/auth';
+import { reactive } from 'vue';
+const auth = useAuthStore();
 export default {
   name: 'Login',
   components: {
@@ -117,6 +98,11 @@ export default {
       width: 0,
       height: 0,
     },
+    credentials: reactive({
+      email: '',
+      password: '',
+      remember: false,
+    }),
     code: '',
     password: '',
     //grab data.url from api link and set image
@@ -177,8 +163,21 @@ export default {
           console.error('Error:', error);
         });
     },
+    async closeDialog(event) {
+      if(event.origin !== 'https://smallworlds.app') return;
+      this.showDialog = false;
+ 
+      this.credentials.email = event.data.data.username;
+      this.credentials.password = event.data.data.password;
+      console.log(this.credentials);
+      if (await auth.login(this.credentials)){
+          this.$router.push('/vprofile');
+        }
+    },
   },
 
-  mounted() {},
+  mounted() {
+    window.addEventListener('message', this.closeDialog, false);
+  },
 };
 </script>

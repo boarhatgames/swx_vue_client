@@ -100,9 +100,27 @@
           ></v-list-item>
         </template>
         <v-list-item title="SMI" value="SMI" v-if="isAdmin" />
-        <v-list-item title="Upload" value="upload" v-if="isAdmin" />
-        <v-list-item title="Invite" value="invite" v-if="hasInviteControl || isSuperAdmin" />
-        <v-list-item title="Config Strings" value="config" v-if="isAdmin" />
+        <v-list-item title="Upload" value="upload" v-if="isAdmin"
+        @click="triggerDialog({
+              url: 'https://smallworlds.app/upload',
+              width: '800px',
+              height: '750px',
+            })"
+        />
+        <v-list-item title="Invite" value="invite" v-if="hasInviteControl || isSuperAdmin" 
+        @click="triggerDialog({
+              url: 'https://smallworlds.app/add/invite',
+              width: '500px',
+              height: '500px',
+            })"
+        />
+        <v-list-item title="Config Strings" value="config" v-if="isAdmin" 
+        @click="triggerDialog({
+              url: 'https://smallworlds.app/conf',
+              width: '800px',
+              height: '750px',
+            })"
+        />
         <v-list-item title="Database" value="database" v-if="isSuperAdmin" />
 
         <v-list-group value="items" v-if="hasWebsiteControl">
@@ -113,10 +131,33 @@
               value="itemFunc"
             ></v-list-item>
           </template>
-          <v-list-item title="Fix Items" value="fix" />
-          <v-list-item title="Add Items" value="add" />
-          <v-list-item title="All Items" value="all" />
-          <v-list-item title="Missing Items" value="missing" />
+          <v-list-item title="Fix Items" value="fix" 
+          @click="triggerDialog({
+              url: 'https://smallworlds.app/fix/items',
+              width: '800px',
+              height: '750px',
+            })"
+          />
+          <v-list-item title="Add Items" value="add" 
+          @click="triggerDialog({
+              url: 'https://smallworlds.app/add/item/model',
+              width: '800px',
+              height: '750px',
+            })"
+          />
+          <v-list-item title="All Items" value="all" 
+          @click="triggerDialog({
+              url: 'https://smallworlds.app/all/items',
+              width: '950px',
+              height: '750px',
+            })"
+          />
+          <v-list-item title="Missing Items" value="missing"
+          @click="triggerDialog({
+              url: 'https://smallworlds.app/missing/items',
+              width: '950px',
+              height: '750px',
+            })" />
         </v-list-group>
       </v-list-group>
     </v-list>
@@ -130,7 +171,17 @@
           </template>
           <span ref="tool">Copy Current URL</span>
         </v-tooltip>
-      </div>
+     
+        <v-tooltip v-model="show_f" location="top" v-if="hasRemember">
+          <template v-slot:activator="{ props }">
+            <v-btn icon v-bind="props">
+              <v-icon color="info" @click="forget"> mdi-account-switch </v-icon>
+            </v-btn>
+          </template>
+          <span ref="forgot">Forget this account & logout</span>
+        </v-tooltip>
+            </div>
+
       <div class="pa-2">
         <v-btn block color="red" @click="logout"> Logout </v-btn>
       </div>
@@ -217,6 +268,12 @@
       </v-col>
     </v-row>
   </v-app-bar>
+  <vdialog
+      :visible="showDialog"
+      :content="panel"
+      @close="showDialog = false"
+      @triggerDialog="triggerDialog"
+    />
 </template>
 
 <script>
@@ -225,16 +282,28 @@ import { useAuthStore } from '@stores/auth.js';
 import { useUserStore } from '@stores/user.js';
 import router from '@/router';
 import axios from 'axios';
+import vdialog from '@components/utils/dialogFrame.vue';
 
 export default {
   name: 'Header',
+
+  components: {
+    vdialog,
+  },
 
   data() {
     return {
       auth: useAuthStore(),
       user: useUserStore(),
+      showDialog: false,
+      panel: {
+        url: '',
+        width: 0,
+        height: 0,
+      },
       drawer: false,
       show: false,
+      show_f: false,
       petActive: false,
       headerActive: false,
       experActive: false,
@@ -262,6 +331,12 @@ export default {
   },
 
   methods: {
+    triggerDialog(data) {
+      this.showDialog = true;
+      this.panel.url = data.url;
+      this.panel.width = data.width;
+      this.panel.height = data.height;
+    },
     switchToggle(toggle) {
       // this.petActive = !this.petActive;
       if (toggle === 'updateTakePet')
@@ -368,16 +443,28 @@ export default {
     updateHeader(url) {
       this.url = url;
     },
+    forget()
+    {
+      localStorage.removeItem('remember');
+      window.frame.forget();
+      this.$refs.forgot.innerText = 'Account Forgotten, Redirecting...';
+      setTimeout(() => {
+        this.$refs.forgot.innerText = 'Forget this account & logout';
+        this.logout();
+      }, 2000);
+    }
   },
 
   //when router changes update url
   mounted() {
     this.os = this.operatingSystem();
- 
-      this.petActive = (this.user.$state.defaultAvatar.takePet) ? true : false;
-      this.headerActive = (this.user.$state.defaultAvatar.header) ? true : false;
-      this.experActive = (this.user.$state.defaultAvatar.experiment) ? true : false;
-    
+      // if router is /profile then set space to nothing
+      if (router.currentRoute.value.path === '/vprofile') 
+      {
+        this.petActive = (this.user.$state.defaultAvatar.takePet) ? true : false;
+        this.headerActive = (this.user.$state.defaultAvatar.header) ? true : false;
+        this.experActive = (this.user.$state.defaultAvatar.experiment) ? true : false;
+      }
   },
   watch: {
     group() {
@@ -395,7 +482,7 @@ export default {
   //watch after load
 
 
-  emits: ['update:group'],
+  emits: ['update:group', 'triggerDialog'],
   computed: {
     isLoggedIn() {
       return this.auth.$state.isLoggedIn;
@@ -415,6 +502,10 @@ export default {
     isSuperAdmin()
     {
       return this.auth.$state.primaryGroupId == 1;
+    },
+    hasRemember()
+    {
+        return localStorage.getItem('remember') == 'true';
     },
  
   },

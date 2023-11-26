@@ -3,7 +3,7 @@
     <Header />
     <v-main>
       <router-view />
-    </v-main>
+    </v-main>   
   </v-app>
 </template>
 
@@ -14,7 +14,7 @@ export default {
   components: {
     Header,
   },
-
+  
   methods: {
     // eslint-disable-next-line no-console
     log(...args) {

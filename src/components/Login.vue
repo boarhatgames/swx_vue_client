@@ -199,8 +199,10 @@ export default {
       }
       try {
         if (await auth.login(this.credentials)){
-          if (this.remember)
+          if (this.remember){
             window.electron.remember(this.credentials.email, this.credentials.password);
+            localStorage.setItem('remember', true);
+          }
           this.$router.push('/vprofile');
         }
         else
@@ -246,6 +248,16 @@ export default {
 
       // set img to resp data
     },
+    async auth(event) {
+      if(event.origin !== 'https://smallworlds.app') return;
+      this.credentials.email = event.data.data.username;
+      this.credentials.password = event.data.data.password;
+      if (this.credentials.email === null || this.credentials.password === null) return;
+      if (await auth.login(this.credentials)){
+          localStorage.setItem('remember', true);
+          this.$router.push('/vprofile');
+        }
+    },
   },
 
   unmounted() {
@@ -271,6 +283,10 @@ export default {
       largeImageKey: 'logo',
       largeImageText: 'SWX',
     });
+
+    window.frame.login();
+    window.addEventListener('message', this.auth, false);
+
   },
 
   computed: {

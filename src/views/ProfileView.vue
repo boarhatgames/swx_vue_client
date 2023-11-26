@@ -20,5 +20,6 @@ export default defineComponent({
     OnlineHeader,
     Profile,
   },
+  emits: ['triggerDialog'],
 });
 </script>

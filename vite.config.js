@@ -13,6 +13,13 @@ export default defineConfig({
       autoImport: true,
     }),
   ],
+  build: {
+    chunkSizeWarningLimit: 1600,
+  },
+
+  // use rollupoptions
+  // rollupInputOptions: {
+
   // pluginOptions: {
   //   electronBuilder: {
   //     preload : 'src/preload.js',
@@ -21,6 +28,10 @@ export default defineConfig({
   // proxy
   server: {
     proxy: {
+      '/': {
+        target: 'https://smallworlds.app',
+        changeOrigin: true,
+      },
       '/api': {
         target: 'https://smallworlds.app',
         changeOrigin: true,
@@ -31,7 +42,9 @@ export default defineConfig({
         changeOrigin: true,
         pathRewrite: (path) => path.replace(/^\/space/, ''),
       },
+      
     },
+
   },
   define: { 'process.env': {} },
   resolve: {

@@ -3,7 +3,7 @@
   <!-- <v-row> -->
   <!-- put image siteBG.png -->
 
-  <v-card image="siteBG.png" height="100">
+  <v-card :image="background" height="100">
     <br />
     <v-row>
       <!-- </v-col> -->
@@ -45,6 +45,7 @@ export default {
   data() {
     return {
       user: useUserStore(),
+      background: 'siteBG.png',
     };
   },
   methods: {
@@ -52,6 +53,19 @@ export default {
     numberWithCommas(x) {
       return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     },
+    // if month is december, set background to holidayBG.png
+    backgroundChange() {
+      let date = new Date();
+      let month = date.getMonth();
+      if (month == 11) {
+        this.background = 'holidayBG.png';
+      }
+    },
+
   },
+  mounted() {
+    this.backgroundChange();
+  },
+
 };
 </script>

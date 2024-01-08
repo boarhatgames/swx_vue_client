@@ -134,6 +134,7 @@ export default {
       color: '',
       icon: '',
       timeout: null,
+      offset: '',
     },
     //grab data.url from api link and set image
     credentials: reactive({
@@ -176,6 +177,7 @@ export default {
       this.snackbar.color = data.color;
       this.snackbar.icon = data.icon;
       this.snackbar.timeout = data.timeout;
+      this.snackbar.offset = data.offset;
       setTimeout(() => {
         this.snackbar.visible = false;
       }, this.snackbar.timeout);
@@ -194,6 +196,7 @@ export default {
           color: 'red',
           timeout: 6000,
           icon: 'mdi-alert-circle',
+          offset: 'left',
         });
         return;
       }
@@ -203,7 +206,9 @@ export default {
             window.electron.remember(this.credentials.email, this.credentials.password);
             localStorage.setItem('remember', true);
           }
-          this.$router.push('/vprofile');
+          // wait a few seconds for localstorage to update
+            this.$router.push('/profile');
+          // this.$router.push('/profile');
         }
         else
         return;
@@ -214,6 +219,7 @@ export default {
           color: 'red',
           timeout: 6000,
           icon: 'mdi-alert-circle',
+          offset: 'left',
         });
         console.log(error);
         console.log('Invalid credentials. Login.vue');

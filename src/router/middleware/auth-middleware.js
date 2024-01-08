@@ -23,6 +23,7 @@ export default (to, from, next) => {
    * IF THE USER IS LOGGED IN
    */
   if (auth.isLoggedIn && isGoingExceptionalRoutes) {
+    //add Authorization header 
     next({ name: 'home', query: { 'redirect-reason': 'already logged' } });
   } else {
     next();

@@ -4,6 +4,7 @@
             v-for="n in 4"
             :key="n"
             v-slot="{ isSelected, toggle }"
+            
           >
             <v-card
               :color="isSelected ? '#0099cc' : ''"
@@ -52,5 +53,18 @@ export default {
   data: () => ({
     model: null,
   }),
+
+  // isSelected and toggle v-slot
+  computed: {
+    isSelected() {
+      console.log("isSelected")
+    },
+    toggle() {
+      console.log("toggle")
+    },
+  },
+
+
+
 };
 </script>

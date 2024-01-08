@@ -4,6 +4,8 @@
     v-model="show"
     :timeout="snackbar.timeout"
     :color="snackbar.color"
+    :offset="snackbar.offset"
+    rounded="true"
     variant="tonal"
     transition="true"
   >

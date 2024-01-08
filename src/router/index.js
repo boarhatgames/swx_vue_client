@@ -12,6 +12,7 @@ const routes = [
     path: '/space/:id/',
     name: 'space',
     component: () => import('../views/SpaceView.vue'),
+    
   },
   {
     path: '/invite',
@@ -36,10 +37,17 @@ const routes = [
     meta: { layout: 'auth' },
   },
   {
-    path: '/vprofile',
+    path: '/profile',
     name: 'profile',
     component: () =>
       import(/* webpackChunkName: "profile" */ '../views/ProfileView.vue'),
+  },
+
+  {
+    path: '/smi',
+    name: 'smi',
+    component: () =>
+      import(/* webpackChunkName: "smi" */ '../views/IframeView.vue'),
   },
 
   {

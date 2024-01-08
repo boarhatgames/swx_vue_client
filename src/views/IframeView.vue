@@ -16,7 +16,7 @@ export default defineComponent({
   name: 'IframeView',
   data() {
     return {
-      url: router.currentRoute.value.path,
+      url: "https://smallworlds.app" + router.currentRoute.value.path,
       // find the number in the url after /space/ and set it to spaceId
       spaceId: null,
       spaceName: null,
@@ -53,41 +53,6 @@ export default defineComponent({
         this.url
       );
       console.log(this.url);
-    },
-
-    // eslint-disable-next-line no-console
-    async getSpaceName(spaceId) {
-      //does url have home in it or space? if has home then set home to true
-      if (this.url.includes('home')) {
-        this.home = true;
-        this.type = 'home';
-      }
-      this.type = 'space';
-
-      const response = await fetch(
-        '/api/space/name/' + this.type + '/' + spaceId
-      );
-      const data = await response.json();
-      this.spaceName = data.name;
-      this.spaceDesc = data.desc.toString();
-      this.spaceId = router.currentRoute.value.path.replace(/[^\/]+$/, '');
-      this.spaceId = this.spaceId.replace('/space/', '');
-
-      await window.rpc.setRPC({
-        details: 'At ' + data.name,
-        state: data.desc.toString(),
-        largeImageKey: 'logo',
-        largeImageText: 'SWX',
-        startTimestamp: Date.now(),
-        // show buttons go there
-        buttons: [
-          {
-            label: 'Go there',
-            // app link
-            url: 'swx://smallworlds.app/' + this.spaceId,
-          },
-        ],
-      });
     },
   },
   async mounted() {
@@ -129,7 +94,7 @@ export default defineComponent({
     });
     //get url after /space/ or /home/ and set it to spaceId
     // this.spaceId = router.currentRoute.value.path.replace(/[^\/]+$/, '');
-    // // this return /space/scarecrow/ 
+    // // this return /space/scarecrow/
     // // get rid of /space/ and set it to spaceId
     // this.spaceId = this.spaceId.replace('/space/', '');
     // console.log('spaceId: ' + this.spaceId);

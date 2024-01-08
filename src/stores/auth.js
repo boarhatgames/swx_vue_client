@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import axios from 'axios';
 import { useUserStore } from '@/stores/user.js';
 import { useRouter } from 'vue-router';
+import base64 from 'base-64';
 
 export const useAuthStore = defineStore({
   id: 'auth',
@@ -24,10 +25,16 @@ export const useAuthStore = defineStore({
     async login({ email, password }) {
       const user = useUserStore();
       try {
+        let token = base64.encode(`${email}:${password}`);
         const { data } = await axios.post('/api/auth/login', {
           email,
           password,
-        });
+        },
+       // send authorization header to axios
+       
+        axios.defaults.headers.common['Authorization'] = `Basic ${token}`,
+
+        );
         if (data.success) {
           // this.commit('setAuthUser', data);
           this.updateState({
@@ -39,9 +46,7 @@ export const useAuthStore = defineStore({
           });
           await user.storeInfo();
           return true;
-        } 
-        else
-          throw new Error('Bad credentials');
+        } else throw new Error('Bad credentials');
       } catch (error) {
         if (error.response && error.response.status === 401) {
           throw new Error('Bad credentials');

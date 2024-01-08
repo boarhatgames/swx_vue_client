@@ -5,7 +5,7 @@
     :src="url"
     style="width: 100%; height: 100%; border: none"
   />
-  <!-- show a webpage with axios auth bearer token -->
+  
 </template>
 
 <script>
@@ -91,11 +91,13 @@ export default defineComponent({
     },
   },
   async mounted() {
+    // set page http header to iframe url
     // await this.setContents();
     const iFrame = this.$refs.frame;
     iFrame.addEventListener('load', () => {
       // get url of iframe
       this.url = iFrame.contentWindow.location.href;
+      // add AUTHORIZATION header to iframe
       //remove the https://smallworlds.app from the url and add the rest to our router
       this.url = this.url.replace('https://smallworlds.app', '');
       //update the current url to the frame address
@@ -129,7 +131,7 @@ export default defineComponent({
     });
     //get url after /space/ or /home/ and set it to spaceId
     this.spaceId = router.currentRoute.value.path.replace(/[^\/]+$/, '');
-    // this return /space/scarecrow/ 
+    // this return /space/scarecrow/
     // get rid of /space/ and set it to spaceId
     this.spaceId = this.spaceId.replace('/space/', '');
     console.log('spaceId: ' + this.spaceId);

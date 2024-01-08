@@ -1,167 +1,31 @@
 <template>
   <!-- <v-card height="100%">
     <v-layout> -->
-  <v-navigation-drawer v-model="drawer" temporary v-if="auth.$state.isLoggedIn">
-    <v-list-item
-      :prepend-avatar="user.$state.defaultAvatar.thumbUrl"
-      :title="user.$state.firstName + space + user.$state.lastName"
-    ></v-list-item>
-    <!-- add user gold + tokens -->
-    <!-- align center -->
-    <!-- <v-list-item>
-      <v-chip color="yellow" style="float: left">
-        <v-img src="balance_gold.png" height="20" width="20"></v-img>
-        {{ commas(user.$state.goldBalance) }}
-      </v-chip>
-      <v-chip color="orange" style="float: right">
-        <v-img src="balance_token.png" height="20" width="20"></v-img>
-        {{ commas(user.$state.tokensBalance) }}
-      </v-chip>
-    </v-list-item> -->
+  <div v-if="auth.$state.isLoggedIn">
+  <!-- include profileHeader.vue here -->
+  <v-navigation-drawer v-model="drawer" temporary   
+ >
 
-    <v-divider></v-divider>
-
-    <v-list density="compact" nav>
-      <v-list-item
-        prepend-icon="mdi-view-dashboard"
-        title="Profile"
-        value="profile"
-        :active="getCurrentRoutes() === '/vprofile'"
-        @click="
-          // if active is false then go to profile
-          if (getCurrentRoutes() !== '/vprofile')
-            $emit('update:group', 'profile'),
-              $router.push('/vprofile'),
-              (drawer = false);
-        "
-      ></v-list-item>
-
-      <!-- <v-list-item prepend-icon="mdi-gavel" title="Admin"></v-list-item> -->
-      <v-list-group value="toggles">
-        <template v-slot:activator="{ props }">
-          <v-list-item
-            v-bind="props"
-            prepend-icon="mdi-tune-variant"
-            title="Toggles"
-            value="home"
-          ></v-list-item>
-        </template>
-        <v-list-item value="pet">
-          <template v-slot:prepend="{ petActiv }">
-            <v-list-item-action start>
-              <v-switch color="info" :model-value="petActive" @change="switchToggle('updateTakePet')"></v-switch>
-            </v-list-item-action>
-          </template>
-
-          <v-list-item-title>Take Pet</v-list-item-title>
-
-          <v-list-item-subtitle> In-World </v-list-item-subtitle>
-        </v-list-item>
-        <v-list-item value="header">
-          <template v-slot:prepend="{ headerActiv }">
-            <v-list-item-action start >
-              <v-switch color="info" :model-value="headerActive" @change="switchToggle('header')"></v-switch>
-            </v-list-item-action>
-          </template>
-
-          <v-list-item-title>SW Header</v-list-item-title>
-        </v-list-item>
-        <v-list-item value="experiment">
-          <template v-slot:prepend="{ experActiv }">
-            <v-list-item-action start>
-              <v-switch color="info" :model-value="experActive" @change="switchToggle('experiment')"></v-switch>
-            </v-list-item-action>
-          </template>
-
-          <v-list-item-title>Experimental</v-list-item-title>
-
-          <v-list-item-subtitle> No PHP </v-list-item-subtitle>
-        </v-list-item>
-      </v-list-group>
-      <v-list-group value="settings">
-        <template v-slot:activator="{ props }">
-          <v-list-item
-            v-bind="props"
-            prepend-icon="mdi-account-cog"
-            title="Settings"
-            value="home"
-          ></v-list-item>
-        </template>
-        <v-list-item title="View Items Wearing" value="itemsWorn" />
-        <v-list-item to="settings" title="Account" value="account" />
-      </v-list-group>
-      <v-list-group value="admin" v-if="isAdmin || hasInviteControl">
-        <template v-slot:activator="{ props }">
-          <v-list-item
-            v-bind="props"
-            prepend-icon="mdi-gavel"
-            title="Admin"
-            value="home"
-          ></v-list-item>
-        </template>
-        <v-list-item title="SMI" value="SMI" v-if="isAdmin" />
-        <v-list-item title="Upload" value="upload" v-if="isAdmin"
-        @click="triggerDialog({
-              url: 'https://smallworlds.app/upload',
-              width: '800px',
-              height: '750px',
-            })"
-        />
-        <v-list-item title="Invite" value="invite" v-if="hasInviteControl || isSuperAdmin" 
-        @click="triggerDialog({
-              url: 'https://smallworlds.app/add/invite',
-              width: '500px',
-              height: '500px',
-            })"
-        />
-        <v-list-item title="Config Strings" value="config" v-if="isAdmin" 
-        @click="triggerDialog({
-              url: 'https://smallworlds.app/conf',
-              width: '800px',
-              height: '750px',
-            })"
-        />
-        <v-list-item title="Database" value="database" v-if="isSuperAdmin" />
-
-        <v-list-group value="items" v-if="hasWebsiteControl">
-          <template v-slot:activator="{ props }">
-            <v-list-item
-              v-bind="props"
-              title="Item Functions"
-              value="itemFunc"
-            ></v-list-item>
-          </template>
-          <v-list-item title="Fix Items" value="fix" 
-          @click="triggerDialog({
-              url: 'https://smallworlds.app/fix/items',
-              width: '800px',
-              height: '750px',
-            })"
-          />
-          <v-list-item title="Add Items" value="add" 
-          @click="triggerDialog({
-              url: 'https://smallworlds.app/add/item/model',
-              width: '800px',
-              height: '750px',
-            })"
-          />
-          <v-list-item title="All Items" value="all" 
-          @click="triggerDialog({
-              url: 'https://smallworlds.app/all/items',
-              width: '950px',
-              height: '750px',
-            })"
-          />
-          <v-list-item title="Missing Items" value="missing"
-          @click="triggerDialog({
-              url: 'https://smallworlds.app/missing/items',
-              width: '950px',
-              height: '750px',
-            })" />
-        </v-list-group>
-      </v-list-group>
-    </v-list>
-    <template v-slot:append>
+    <profileHeader 
+    v-if="($route.name === 'profile') || ($route.name === 'root') 
+    || ($route.name === 'not-found')"
+    :user="user" :petActive="petActive" :headerActive="headerActive" :experActive="experActive"
+    :isAdmin="isAdmin" :isSuperAdmin="isSuperAdmin"
+    :hasInviteControl="hasInviteControl" :hasWebsiteControl="hasWebsiteControl" :hasRemember="hasRemember" @triggerDialog="triggerDialog" 
+    @switchToggle="switchToggle" @smi="smi" @getCurrentRoutes="getCurrentRoutes"
+    />
+    <inworldHeader v-if="($route.name === 'space')"
+    :user="user" :petActive="petActive" :headerActive="headerActive" :experActive="experActive"
+    :isAdmin="isAdmin" :isSuperAdmin="isSuperAdmin" :hasInviteControl="hasInviteControl" :hasWebsiteControl="hasWebsiteControl" 
+    :hasRemember="hasRemember" @triggerRDialog="triggerRDialog" @triggerDialog="triggerDialog"
+    @switchToggle="switchToggle" @smi="smi" @getCurrentRoutes="getCurrentRoutes"
+    />
+    <smiHeader 
+    v-else-if="$route.path === '/smi'"
+    :user="user"
+    @getCurrentRoutes="getCurrentRoutes"
+    />
+    <template v-slot:append v-if="$route.name !== 'smi'">
       <div class="pa-2">
         <v-tooltip v-model="show" location="top">
           <template v-slot:activator="{ props }">
@@ -171,7 +35,7 @@
           </template>
           <span ref="tool">Copy Current URL</span>
         </v-tooltip>
-     
+
         <v-tooltip v-model="show_f" location="top" v-if="hasRemember">
           <template v-slot:activator="{ props }">
             <v-btn icon v-bind="props">
@@ -180,13 +44,15 @@
           </template>
           <span ref="forgot">Forget this account & logout</span>
         </v-tooltip>
-            </div>
+      </div>
 
       <div class="pa-2">
         <v-btn block color="red" @click="logout"> Logout </v-btn>
       </div>
     </template>
   </v-navigation-drawer>
+
+  </div>
 
   <div class="titlebar" v-else-if="os === 'Windows'"></div>
   <v-app-bar
@@ -201,8 +67,11 @@
       <v-col
         cols="1"
         v-if="isLoggedIn"
-        style="flex: 0 !important; align-self: center; -webkit-app-region: no-drag"
-
+        style="
+          flex: 0 !important;
+          align-self: center;
+          -webkit-app-region: no-drag;
+        "
       >
         <v-btn icon @click="toggleDrawer()">
           <v-icon>mdi-menu</v-icon>
@@ -223,7 +92,7 @@
           style="-webkit-app-region: no-drag"
         ></v-text-field>
       </v-col>
-      <v-col align-self="center" >
+      <v-col align-self="center">
         <!-- add reload button -->
         <v-btn icon @click="reload()" style="-webkit-app-region: no-drag">
           <v-icon size="18">mdi-reload</v-icon>
@@ -268,12 +137,19 @@
       </v-col>
     </v-row>
   </v-app-bar>
+  <aDialog 
+    :visible="showRDialog"
+    :content="panel"
+    @close="showRDialog = false"
+    @triggerRDialog="triggerRDialog"
+  />
   <vdialog
-      :visible="showDialog"
-      :content="panel"
-      @close="showDialog = false"
-      @triggerDialog="triggerDialog"
-    />
+    :visible="showDialog"
+    :content="panel"
+    @close="showDialog = false"
+    @triggerDialog="triggerDialog"
+  />
+
 </template>
 
 <script>
@@ -283,12 +159,19 @@ import { useUserStore } from '@stores/user.js';
 import router from '@/router';
 import axios from 'axios';
 import vdialog from '@components/utils/dialogFrame.vue';
-
+import aDialog from '@components/utils/dialogAway.vue';
+import profileHeader from '@components/profile/header/profileHeader.vue';
+import smiHeader from '@components/profile/header/smiHeader.vue';
+import inworldHeader from '@components/profile/header/inworldHeader.vue';
 export default {
   name: 'Header',
 
   components: {
     vdialog,
+    profileHeader,
+    smiHeader,
+    inworldHeader,
+    aDialog,
   },
 
   data() {
@@ -296,10 +179,13 @@ export default {
       auth: useAuthStore(),
       user: useUserStore(),
       showDialog: false,
+      showRDialog: false,
       panel: {
         url: '',
         width: 0,
         height: 0,
+        persistent: false,
+        data: '',
       },
       drawer: false,
       show: false,
@@ -336,15 +222,17 @@ export default {
       this.panel.url = data.url;
       this.panel.width = data.width;
       this.panel.height = data.height;
+      this.panel.persistent = data.persistent;
+    },
+    triggerRDialog(data) {
+      this.showRDialog = true;
+      this.panel.url = data.url;
     },
     switchToggle(toggle) {
       // this.petActive = !this.petActive;
-      if (toggle === 'updateTakePet')
-        this.petActive = !this.petActive;
-      if (toggle === 'header')
-        this.headerActive = !this.headerActive;
-      if (toggle === 'experiment')
-        this.experActive = !this.experActive;
+      if (toggle === 'updateTakePet') this.petActive = !this.petActive;
+      if (toggle === 'header') this.headerActive = !this.headerActive;
+      if (toggle === 'experiment') this.experActive = !this.experActive;
       this.user.$patch({
         defaultAvatar: {
           takePet: this.petActive,
@@ -356,8 +244,7 @@ export default {
       this.callToggle(toggle);
     },
 
-    async callToggle(toggle)
-    {
+    async callToggle(toggle) {
       let token = JSON.parse(localStorage.getItem('AUTH_STATE')).token;
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       await axios.post('/api/avatar/' + toggle, {
@@ -367,7 +254,9 @@ export default {
         takePet: this.petActive,
       });
     },
-
+    smi() {
+      window.frame.smi();
+    },
     copyURL() {
       // copy url to clipboard
       navigator.clipboard.writeText(this.url);
@@ -403,7 +292,7 @@ export default {
       return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     },
     getCurrentRoutes() {
-      if (router.currentRoute.value.path === '/') {
+      if (router.currentRoute.value.path == '/') {
         return '/profile';
       }
       return router.currentRoute.value.path;
@@ -414,10 +303,14 @@ export default {
       this.drawer = !this.drawer;
     },
     gotoUrl(url) {
-      console.log(url);
+      // block all urls other than smallworlds.app
+      if (!url.includes('smallworlds.app')) {
+        alert('Please stay within the app.');
+        return;
+      }
       // always go to url
       window.location.href = url;
-      this.reload();
+      // this.reload();
     },
     reload() {
       // reload page
@@ -443,8 +336,7 @@ export default {
     updateHeader(url) {
       this.url = url;
     },
-    forget()
-    {
+    forget() {
       localStorage.removeItem('remember');
       window.frame.forget();
       this.$refs.forgot.innerText = 'Account Forgotten, Redirecting...';
@@ -452,19 +344,20 @@ export default {
         this.$refs.forgot.innerText = 'Forget this account & logout';
         this.logout();
       }, 2000);
-    }
+    },
   },
 
   //when router changes update url
   mounted() {
     this.os = this.operatingSystem();
-      // if router is /profile then set space to nothing
-      if (router.currentRoute.value.path === '/vprofile') 
-      {
-        this.petActive = (this.user.$state.defaultAvatar.takePet) ? true : false;
-        this.headerActive = (this.user.$state.defaultAvatar.header) ? true : false;
-        this.experActive = (this.user.$state.defaultAvatar.experiment) ? true : false;
-      }
+    // if router is /profile then set space to nothing
+    if (this.isLoggedIn) {
+      this.petActive = this.user.$state.defaultAvatar.takePet ? true : false;
+      this.headerActive = this.user.$state.defaultAvatar.header ? true : false;
+      this.experActive = this.user.$state.defaultAvatar.experiment
+        ? true
+        : false;
+    }
   },
   watch: {
     group() {
@@ -473,41 +366,35 @@ export default {
 
     $route(to) {
       this.url = window.location.href;
+      // console.log(this.isLoggedIn);
+     
     },
-    // if this.petActive changes then update user
-    
-    //if iframe url changes then update url
   },
 
-  //watch after load
-
-
-  emits: ['update:group', 'triggerDialog'],
+  emits: ['update:group'],
   computed: {
     isLoggedIn() {
       return this.auth.$state.isLoggedIn;
     },
-    isAdmin()
-    {
-      return this.auth.$state.primaryGroupId == 1 || this.auth.$state.primaryGroupId == 2 || this.auth.$state.primaryGroupId == 13;
+    isAdmin() {
+      return (
+        this.auth.$state.primaryGroupId == 1 ||
+        this.auth.$state.primaryGroupId == 2 ||
+        this.auth.$state.primaryGroupId == 13
+      );
     },
-    hasWebsiteControl()
-    {
+    hasWebsiteControl() {
       return this.auth.$state.secondaryGroupIds.includes(17);
     },
-    hasInviteControl()
-    {
+    hasInviteControl() {
       return this.auth.$state.secondaryGroupIds.includes(22);
     },
-    isSuperAdmin()
-    {
+    isSuperAdmin() {
       return this.auth.$state.primaryGroupId == 1;
     },
-    hasRemember()
-    {
-        return localStorage.getItem('remember') == 'true';
+    hasRemember() {
+      return localStorage.getItem('remember') == 'true';
     },
- 
   },
 };
 </script>
